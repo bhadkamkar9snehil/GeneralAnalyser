@@ -1,12 +1,12 @@
 # general_forecasting_app.R
 # A general-purpose forecasting tool using Shiny and shinydashboardPlus.
 # - Accepts CSV or Excel files.
-# - All inputs (file, column selection, options, algorithms, Run Analysis) are in the right-hand controlbar under "Inputs".
-# - The Data Preview tab displays a table, basic summary statistics, a trend plot (faceted by column), and a correlation heatmap.
+# - All inputs (file, column selection, options, algorithms, and Run Analysis) are in the right-hand controlbar under "Inputs".
+# - The Data Preview tab displays a data table, a basic statistics chart, a faceted trend plot for each numeric column, and a correlation heatmap.
 # - Combined Forecast, Aggregated Outputs, and Best Model are shown in separate menu items.
 # - VAR/SVAR require at least one additional numeric predictor column (without missing values).
-# - The Settings tab in the controlbar includes a skin selector and a ggplot theme selector.
-# - Changing the ggplot theme re-renders all plots.
+# - The Settings tab includes a skin selector, a ggplot theme selector, a correlation colour scheme selector, and a series colour palette selector.
+# - When the Run Analysis button is pressed, analysis is triggered and focus automatically shifts to the Combined Forecast tab.
 
 ### 1) INSTALL AND LOAD REQUIRED PACKAGES
 packages <- c("shiny", "shinydashboardPlus", "shinydashboard", "ggplot2", 
@@ -26,6 +26,7 @@ ui <- shinydashboardPlus::dashboardPage(
   ),
   sidebar = shinydashboardPlus::dashboardSidebar(
     sidebarMenu(
+      id = "tabs",
       menuItem("Data Preview", tabName = "data_preview", icon = icon("table")),
       menuItem("Combined Forecast", tabName = "combined_forecast", icon = icon("line-chart")),
       menuItem("Aggregated Outputs", tabName = "aggregated_outputs", icon = icon("chart-bar")),
@@ -47,11 +48,11 @@ ui <- shinydashboardPlus::dashboardPage(
               ),
               fluidRow(
                 shinydashboardPlus::box(
-                  title = "Basic Statistics",
+                  title = "Basic Statistics (Mean & SD)",
                   width = 12,
                   collapsible = TRUE,
                   solidHeader = TRUE,
-                  DT::dataTableOutput("summaryStats")
+                  plotOutput("statsPlot", height = "300px")
                 )
               ),
               fluidRow(
@@ -60,7 +61,7 @@ ui <- shinydashboardPlus::dashboardPage(
                   width = 12,
                   collapsible = TRUE,
                   solidHeader = TRUE,
-                  plotOutput("trendPlot", height = "300px")
+                  plotOutput("trendPlot", height = "500px")
                 )
               ),
               fluidRow(
@@ -140,7 +141,7 @@ ui <- shinydashboardPlus::dashboardPage(
     .list = list(
       shinydashboardPlus::controlbarMenu(
         id = "inputMenu",
-        # Single merged Inputs tab
+        # Merged Inputs Tab (Run Analysis button at the bottom)
         shinydashboardPlus::controlbarItem(
           title = "Inputs",
           fileInput("file", "Upload CSV/Excel File", accept = c(".csv", ".xls", ".xlsx")),
@@ -154,23 +155,27 @@ ui <- shinydashboardPlus::dashboardPage(
                          choices = c("ARIMA", "ETS", "NNETAR", "VAR", "SVAR", "Random Forest"),
                          multiple = TRUE),
           shiny::actionButton("runAnalysis", "Run Analysis", 
-                              class = "btn btn-danger", 
-                              style = "font-size: 18px; padding: 10px 20px; margin-top: 15px;")
+                              class = "btn", 
+                              style = "background-color: lightgreen; font-size: 18px; padding: 10px 20px; margin-top: 15px;")
         ),
-        # Settings Tab with ggplot theme selector (including themes from ggthemes)
+        # Settings Tab with additional colour options
         shinydashboardPlus::controlbarItem(
           title = "Settings",
           shinydashboardPlus::skinSelector(),
           selectInput("ggplot_theme", "Select ggplot Theme:",
                       choices = c("Minimal", "Classic", "BW", "Light", "Void", 
                                   "Gray", "Economist", "Fivethirtyeight", "Stata", "Solarized"),
-                      selected = "Minimal")
+                      selected = "Minimal"),
+          selectInput("cor_color_scheme", "Correlation Color Scheme:",
+                      choices = c("Blue-Red", "Purple-Green", "Orange-Blue"), selected = "Blue-Red"),
+          selectInput("series_palette", "Series Colour Palette:",
+                      choices = c("Default", "Set 2", "Dark2", "Pastel1"), selected = "Default")
         )
       )
     )
   ),
   title = "General Forecasting Tool",
-  skin = "black-light"
+  skin = "blue"
 )
 
 ### 3) SERVER LOGIC
@@ -204,14 +209,23 @@ server <- function(input, output, session) {
     DT::datatable(head(dataInput(), 20), options = list(pageLength = 10))
   })
   
-  # Basic statistics for each column
-  output$summaryStats <- DT::renderDataTable({
+  # Basic Statistics as a Chart (Mean and SD for each numeric column)
+  output$statsPlot <- renderPlot({
     req(dataInput())
-    stats <- as.data.frame(summary(dataInput()))
-    DT::datatable(stats, options = list(pageLength = 10))
+    df <- dataInput()
+    num_df <- df[sapply(df, is.numeric)]
+    if(ncol(num_df) < 1) return(NULL)
+    stats <- data.frame(Column = names(num_df),
+                        Mean = sapply(num_df, mean, na.rm = TRUE),
+                        SD = sapply(num_df, sd, na.rm = TRUE))
+    stats_long <- reshape2::melt(stats, id.vars = "Column", variable.name = "Statistic", value.name = "Value")
+    ggplot(stats_long, aes(x = Column, y = Value, fill = Statistic)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      labs(title = "Basic Statistics", x = "Column", y = "Value") +
+      theme_minimal() + ggTheme()
   })
   
-  # Trends for Numeric Columns with facets
+  # Trends for Numeric Columns with Facets
   output$trendPlot <- renderPlot({
     req(dataInput(), input$time_col)
     df <- dataInput()
@@ -225,10 +239,10 @@ server <- function(input, output, session) {
       geom_line() +
       facet_wrap(~variable, scales = "free_y") +
       labs(title = "Trends for Numeric Columns", x = "Time", y = "Value") +
-      ggTheme()
+      theme_minimal() + ggTheme()
   })
   
-  # Correlation Heatmap using selected ggplot theme
+  # Correlation Heatmap using Selected Colour Scheme
   output$corPlot <- renderPlot({
     req(dataInput())
     df <- dataInput()
@@ -236,11 +250,16 @@ server <- function(input, output, session) {
     if(ncol(num_df) < 2) return(NULL)
     cor_mat <- cor(num_df, use = "complete.obs")
     cor_df <- as.data.frame(as.table(cor_mat))
+    corColors <- switch(input$cor_color_scheme,
+                        "Blue-Red" = list(low = "blue", high = "red"),
+                        "Purple-Green" = list(low = "purple", high = "green"),
+                        "Orange-Blue" = list(low = "orange", high = "blue"),
+                        list(low = "blue", high = "red"))
     ggplot(cor_df, aes(Var1, Var2, fill = Freq)) +
       geom_tile() +
-      scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
+      scale_fill_gradient2(low = corColors$low, mid = "white", high = corColors$high, midpoint = 0) +
       labs(title = "Correlation Heatmap", x = "", y = "") +
-      ggTheme()
+      theme_minimal() + ggTheme()
   })
   
   # Update column choices when data is loaded
@@ -269,7 +288,28 @@ server <- function(input, output, session) {
     )
   })
   
-  # Main Analysis Logic triggered solely by Run Analysis button
+  # Reactive series colours based on user selection
+  seriesColors <- reactive({
+    # Additional palette combos
+    defaultPalette <- c("ARIMA" = "blue", "ETS" = "green", "NNETAR" = "purple", 
+                        "VAR" = "orange", "SVAR" = "red", "Random Forest" = "brown")
+    set2Palette <- c("ARIMA" = "dodgerblue", "ETS" = "forestgreen", "NNETAR" = "magenta", 
+                     "VAR" = "gold", "SVAR" = "firebrick", "Random Forest" = "darkorchid")
+    dark2Palette <- c("ARIMA" = "#1b9e77", "ETS" = "#d95f02", "NNETAR" = "#7570b3",
+                      "VAR" = "#e7298a", "SVAR" = "#66a61e", "Random Forest" = "#e6ab02")
+    pastel1Palette <- c("ARIMA" = "#fbb4ae", "ETS" = "#b3cde3", "NNETAR" = "#ccebc5",
+                        "VAR" = "#decbe4", "SVAR" = "#fed9a6", "Random Forest" = "#ffffcc")
+    
+    switch(input$series_palette,
+           "Default" = defaultPalette,
+           "Set 2"   = set2Palette,
+           "Dark2"   = dark2Palette,
+           "Pastel1" = pastel1Palette,
+           defaultPalette
+    )
+  })
+  
+  # Main Analysis Logic triggered by Run Analysis button
   results <- eventReactive(input$runAnalysis, {
     withProgress(message = "Running Analysis", value = 0, {
       logMsg("Analysis started.")
@@ -278,11 +318,15 @@ server <- function(input, output, session) {
       req(dataInput(), input$time_col, input$target_col)
       df <- dataInput()
       df[[input$time_col]] <- as.POSIXct(df[[input$time_col]])
+      if(any(is.na(df[[input$time_col]]))) {
+        stop("Time column could not be parsed correctly. Please check your file.")
+      }
       df <- df[order(df[[input$time_col]]), ]
       logMsg("Data sorted by time.")
       
       target <- as.numeric(df[[input$target_col]])
       n <- nrow(df)
+      if(n == 0) stop("No data available after loading/cleaning.")
       train_size <- floor(input$split_ratio * n)
       train_df <- df[1:train_size, ]
       test_df <- df[(train_size + 1):n, ]
@@ -292,6 +336,8 @@ server <- function(input, output, session) {
       
       incProgress(0.2, detail = "Generating future timestamps...")
       last_time <- tail(df[[input$time_col]], 1)
+      if(length(last_time) != 1 || is.na(last_time))
+        stop("Invalid time value in time column.")
       diffs <- diff(df[[input$time_col]])
       interval_sec <- if(length(diffs) > 0) median(as.numeric(diffs, units = "secs")) else 86400
       future_times <- seq(from = last_time + interval_sec, by = interval_sec, length.out = input$future_periods)
@@ -496,8 +542,8 @@ server <- function(input, output, session) {
       labs(title = "Historical Data and Future Forecasts", y = "Target Value")
     
     # Loop through univariate models first
+    sc <- seriesColors()
     univariateModels <- intersect(c("ARIMA", "ETS", "NNETAR"), input$algorithms)
-    colors <- c("ARIMA" = "blue", "ETS" = "green", "NNETAR" = "purple")
     for(mod in univariateModels) {
       fc_obj <- res$model_preds[[paste0(mod, "_fc")]]
       if(!is.null(fc_obj) && length(fc_obj$mean) >= input$future_periods &&
@@ -511,10 +557,13 @@ server <- function(input, output, session) {
                             Forecast = as.numeric(fc_obj$mean[start_idx:h_total]),
                             Lower = as.numeric(fc_obj$lower[start_idx:h_total,1]),
                             Upper = as.numeric(fc_obj$upper[start_idx:h_total,1]))
-        p <- p +
-          geom_line(data = df_fc, aes(x = Time, y = Forecast), color = colors[mod], linetype = "dashed") +
-          geom_ribbon(data = df_fc, aes(x = Time, ymin = Lower, ymax = Upper), 
-                      fill = colors[mod], alpha = 0.2, inherit.aes = FALSE)
+        df_fc <- df_fc[complete.cases(df_fc), ]
+        if(nrow(df_fc) > 0) {
+          p <- p +
+            geom_line(data = df_fc, aes(x = Time, y = Forecast), color = sc[mod], linetype = "dashed") +
+            geom_ribbon(data = df_fc, aes(x = Time, ymin = Lower, ymax = Upper), 
+                        fill = sc[mod], alpha = 0.2, inherit.aes = FALSE)
+        }
       }
     }
     # For other models, use future predictions vector if available
@@ -525,14 +574,11 @@ server <- function(input, output, session) {
         h_future <- input$future_periods
         dt <- if(length(time_full) > 1) median(diff(as.numeric(time_full))) else 1
         fc_time <- seq(from = max(time_full) + dt, by = dt, length.out = h_future)
-        df_fc <- data.frame(Time = fc_time, Forecast = fc_future[1:h_future])
-        col_default <- switch(mod,
-                              "VAR" = "orange",
-                              "SVAR" = "red",
-                              "Random Forest" = "brown",
-                              "gray")
+        df_fc <- data.frame(Time = fc_time, Forecast = as.numeric(fc_future[1:h_future]))
+        # Use the palette if it matches the mod name, else fallback
+        colorChoice <- sc[mod] %||% "gray"
         p <- p +
-          geom_line(data = df_fc, aes(x = Time, y = Forecast), color = col_default, linetype = "dashed")
+          geom_line(data = df_fc, aes(x = Time, y = Forecast), color = colorChoice, linetype = "dashed")
       }
     }
     
@@ -684,7 +730,7 @@ server <- function(input, output, session) {
     }
   })
   
-  ## Best Algorithm Display on Main Body
+  ## Best Algorithm Display with Additional Details
   output$bestAlgorithm <- renderUI({
     req(results())
     res <- results()
@@ -692,11 +738,22 @@ server <- function(input, output, session) {
       bestIdx <- which.min(res$error_metrics$RMSE)
       bestModel <- res$error_metrics$Model[bestIdx]
       bestRmse <- round(res$error_metrics$RMSE[bestIdx], 2)
+      bestMape <- round(res$error_metrics$MAPE[bestIdx], 2)
+      detailText <- paste("Model:", bestModel,
+                          "\nRMSE:", bestRmse,
+                          "\nMAPE:", bestMape, "%")
       tags$div(class = "well", style = "font-size: 18px; padding: 15px; margin: 15px;",
-               paste("Best Performing Model:", bestModel, "(RMSE:", bestRmse, ")"))
+               pre(detailText))
     } else {
       tags$div(class = "well", "No best model identified yet.")
     }
+  })
+  
+  # When analysis completes, shift focus to the Combined Forecast tab.
+  observeEvent(input$runAnalysis, {
+    isolate({
+      updateTabItems(session, "tabs", "combined_forecast")
+    })
   })
 }
 
