@@ -1,3 +1,7 @@
+Below is the complete updated Project Requirements Document (PRD.MD) with the revised non‑functional requirements:
+
+---
+
 # General Forecasting Tool - Project Requirements Document (v2.0)
 
 ## 1. Executive Summary
@@ -12,7 +16,7 @@ A no-code analytics platform that enables users to perform advanced data analysi
 - Interactive visualization
 - Basic reporting
 
-**Timeline**: 6 weeks
+**Timeline**: 6 weeks  
 **Deliverables**:
 - Working dashboard application
 - Support for multiple file formats
@@ -25,7 +29,7 @@ A no-code analytics platform that enables users to perform advanced data analysi
 - Live data processing
 - Real-time analysis capabilities
 
-**Timeline**: 6 weeks
+**Timeline**: 6 weeks  
 **Deliverables**:
 - API configuration interface
 - Real-time data processing
@@ -37,7 +41,7 @@ A no-code analytics platform that enables users to perform advanced data analysi
 - Result storage system
 - Live dashboard updates
 
-**Timeline**: 6 weeks
+**Timeline**: 6 weeks  
 **Deliverables**:
 - Automated pipeline
 - Database integration
@@ -49,7 +53,7 @@ A no-code analytics platform that enables users to perform advanced data analysi
 - Single-package deployment
 - Update system
 
-**Timeline**: 4 weeks
+**Timeline**: 4 weeks  
 **Deliverables**:
 - Docker container
 - Installation package
@@ -138,28 +142,31 @@ core_packages <- c(
 ## 5. Non-Functional Requirements
 
 ### 5.1 Performance
-- Response time < 2 seconds
-- Support for 100+ concurrent users
-- Handle datasets up to 1GB
-- Real-time processing capability
+- **Response Time:** Less than 2 seconds
+- **Concurrent Users:** Support for up to 50 concurrent users
+- **Dataset Handling:** Capable of processing and analyzing multi-gigabyte datasets
+- **Real-time Processing:** Ensure real-time data processing capabilities
 
 ### 5.2 Security
 - User authentication
-- Role-based access
+- Role-based access control
 - Data encryption
-- API security
+- Robust API security measures
 
 ### 5.3 Reliability
-- 99.9% uptime
+- 99.9% uptime target
 - Automated backups
-- Error recovery
-- Data validation
+- Error recovery mechanisms
+- Comprehensive data validation
 
 ### 5.4 Usability
-- Intuitive interface
-- Responsive design
-- Comprehensive help system
-- User onboarding
+- Intuitive and user-friendly interface
+- Responsive design across devices
+- Comprehensive help system and user onboarding
+
+### 5.5 Deployment
+- **Ease of Deployment:** The application should be easy to deploy with minimal configuration steps
+- **Containerization:** Provide containerized deployment (e.g., via Docker) along with a single-package installation solution
 
 ## 6. Milestones & Deliverables
 
@@ -192,21 +199,20 @@ core_packages <- c(
 - Real-time processing challenges
 
 ### 7.2 Mitigation Strategies
-- Performance testing
-- Modular development
-- Scalable architecture
-- Comprehensive testing
+- Rigorous performance testing
+- Modular and scalable development approach
+- Comprehensive end-to-end testing
 
 ## 8. Success Criteria
-- Successful deployment
-- User adoption
-- Performance metrics
-- Reliability targets
-- User satisfaction
+- Successful deployment of the platform
+- High user adoption and engagement
+- Meeting defined performance metrics
+- Achieving reliability and uptime targets
+- Overall user satisfaction
 
 ## 9. Future Enhancements
-- Advanced algorithms
-- Additional data sources
-- Mobile application
-- Advanced visualizations
-- AI-powered insights 
+- Integration of advanced algorithms
+- Support for additional data sources
+- Development of a mobile application
+- Enhanced visualizations and interactive features
+- Incorporation of AI-powered insights
