@@ -1,10 +1,8 @@
 # History files
 .Rhistory
-.Rapp.history
 
 # Session Data files
 .RData
-.RDataTmp
 
 # User-specific files
 .Ruserdata
@@ -20,6 +18,7 @@
 
 # RStudio files
 .Rproj.user/
+*.Rproj
 
 # produced vignettes
 vignettes/*.html
@@ -47,3 +46,12 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# macOS specific files
+.DS_Store
+
+# Documentation files
+inst/doc
+/doc/
+
+/Meta/

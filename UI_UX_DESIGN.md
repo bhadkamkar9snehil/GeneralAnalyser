@@ -1,15 +1,18 @@
 # General Analytics Platform - UI/UX Design Specification (v2.0)
 
 ## Executive Summary
+
 This document outlines the complete user interface and user experience design for the General Analytics Platform. The platform provides a no-code analytics solution with support for file-based analysis, live data integration, automated model deployment, and real-time monitoring capabilities.
 
 ## Document Version Control
+
 - Version: 2.0
 - Last Updated: 16/03/2025
 - Status: Draft
 - Authors: Snehil Bhadkamkar
 
 ## Table of Contents
+
 1. Architecture Overview
    - System Architecture
    - User Interface Architecture
@@ -78,6 +81,7 @@ This document outlines the complete user interface and user experience design fo
 ## 1. Architecture Overview
 
 ### 1.1 System Architecture
+
 ```mermaid
 graph TD
     subgraph User Interface Layer
@@ -100,6 +104,7 @@ graph TD
 ```
 
 ### 1.2 User Interface Architecture
+
 ```mermaid
 graph TD
     A[Landing Page] --> B[Authentication]
@@ -149,6 +154,7 @@ graph TD
 ```
 
 ### 1.3 Component Hierarchy
+
 ```mermaid
 graph TD
     subgraph Application Shell
@@ -173,6 +179,7 @@ graph TD
 ## 2. Navigation & Information Architecture
 
 ### 2.1 Global Navigation Structure
+
 ```mermaid
 graph TD
     subgraph Global Navigation
@@ -197,6 +204,7 @@ graph TD
 ```
 
 ### 2.2 Information Flow
+
 ```mermaid
 graph LR
     subgraph Data Flow
@@ -218,6 +226,7 @@ graph LR
 ```
 
 ### 2.3 User Journey Map
+
 ```mermaid
 journey
     title Analytics Workflow
@@ -235,6 +244,7 @@ journey
 ```
 
 ### 2.4 Navigation States
+
 ```mermaid
 stateDiagram-v2
     [*] --> Landing
@@ -258,6 +268,7 @@ stateDiagram-v2
 ## 3. Layout Specifications
 
 ### 3.1 Grid System
+
 ```css
 .grid-system {
     /* Base Grid */
@@ -277,6 +288,7 @@ stateDiagram-v2
 ```
 
 ### 3.2 Layout Components
+
 ```mermaid
 graph TD
     subgraph Layout Components
@@ -301,6 +313,7 @@ graph TD
 ## 4. Component Library
 
 ### 4.1 Core Components
+
 ```mermaid
 graph TD
     subgraph Core Components
@@ -332,6 +345,7 @@ graph TD
 ```
 
 ### 4.2 Form Elements
+
 ```
 +------------------------+
 |    Text Input         |
@@ -374,6 +388,7 @@ graph TD
 ```
 
 ### 4.3 Advanced Form Components
+
 ```mermaid
 graph TD
     subgraph Form Components
@@ -401,6 +416,7 @@ graph TD
 ```
 
 ### 4.4 Interactive Elements
+
 ```
 +------------------------+
 |    Slider             |
@@ -431,6 +447,7 @@ graph TD
 ```
 
 ### 4.5 Data Visualization Components
+
 ```mermaid
 graph TD
     subgraph Visualization Components
@@ -455,6 +472,7 @@ graph TD
 ```
 
 ### 4.6 Component States
+
 ```css
 /* Component State Management */
 .component-states {
@@ -500,6 +518,7 @@ graph TD
 ## 5. Interaction Patterns (Enhanced)
 
 ### 5.1 User Workflows
+
 ```mermaid
 graph TD
     subgraph Data Analysis Workflow
@@ -531,6 +550,7 @@ graph TD
 ```
 
 ### 5.2 State Management
+
 ```mermaid
 stateDiagram-v2
     [*] --> Idle
@@ -559,6 +579,7 @@ stateDiagram-v2
 ```
 
 ### 5.3 Input Handling System
+
 ```typescript
 interface InputValidation {
     // Input Types
@@ -603,6 +624,7 @@ const validationRules = {
 ```
 
 ### 5.4 Feedback Systems (Enhanced)
+
 ```mermaid
 sequenceDiagram
     participant User
@@ -634,6 +656,7 @@ sequenceDiagram
 ```
 
 ### 5.5 Interaction States
+
 ```css
 /* Interaction State Definitions */
 .interaction-states {
@@ -657,6 +680,7 @@ sequenceDiagram
 ```
 
 ### 5.6 Progressive Disclosure
+
 ```mermaid
 graph TD
     subgraph Progressive UI
@@ -675,6 +699,7 @@ graph TD
 ```
 
 ### 5.7 Error Prevention
+
 ```mermaid
 graph TD
     subgraph Error Prevention
@@ -696,6 +721,7 @@ graph TD
 ## 6. Visual Design System (Enhanced)
 
 ### 6.1 Color System (Extended)
+
 ```mermaid
 graph TD
     subgraph Color System
@@ -745,6 +771,7 @@ graph TD
 ```
 
 ### 6.2 Typography System
+
 ```css
 :root {
     /* Font Families */
@@ -769,6 +796,7 @@ graph TD
 ```
 
 ### 6.3 Iconography
+
 ```mermaid
 graph TD
     subgraph Icon System
@@ -796,6 +824,7 @@ graph TD
 ```
 
 ### 6.4 Spacing System
+
 ```css
 :root {
     /* Base Spacing Unit: 4px */
@@ -813,6 +842,7 @@ graph TD
 ## 7. Animation & Transitions System
 
 ### 7.1 Timing Functions
+
 ```css
 .animation-timing {
     /* Easing Curves */
@@ -835,6 +865,7 @@ graph TD
 ```
 
 ### 7.2 Motion Patterns
+
 ```mermaid
 graph LR
     subgraph Motion Patterns
@@ -857,6 +888,7 @@ graph LR
 ```
 
 ### 7.3 Animation Keyframes
+
 ```css
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -890,6 +922,7 @@ graph LR
 ## 8. Responsive Design System
 
 ### 8.1 Breakpoint System
+
 ```css
 .breakpoint-system {
     /* Modern Breakpoints */
@@ -909,6 +942,7 @@ graph LR
 ```
 
 ### 8.2 Grid System
+
 ```css
 .grid-system {
     /* Grid Columns */
@@ -931,6 +965,7 @@ graph LR
 ```
 
 ### 8.3 Responsive Patterns
+
 ```mermaid
 graph TD
     subgraph Responsive Patterns
@@ -954,6 +989,7 @@ graph TD
 ## 9. Accessibility Guidelines
 
 ### 9.1 WCAG Compliance Checklist
+
 - **Perceivable**
   - Text alternatives for non-text content
   - Captions and alternatives for multimedia
@@ -978,6 +1014,7 @@ graph TD
   - Name, Role, Value for all components
 
 ### 9.2 ARIA Implementation
+
 ```html
 <!-- Example ARIA Patterns -->
 <button 
@@ -1005,6 +1042,7 @@ graph TD
 ## 10. Performance Optimization Guidelines
 
 ### 10.1 Loading Strategy
+
 ```mermaid
 graph TD
     subgraph Loading Strategy
@@ -1023,6 +1061,7 @@ graph TD
 ```
 
 ### 10.2 Performance Metrics
+
 ```typescript
 interface PerformanceMetrics {
     // Core Web Vitals
@@ -1057,6 +1096,7 @@ interface PerformanceMetrics {
 ```
 
 ### 10.3 Asset Optimization
+
 ```yaml
 image_optimization:
   formats:
@@ -1091,6 +1131,7 @@ js_optimization:
 ## 11. Documentation & Help
 
 ### 11.1 User Documentation
+
 ```markdown
 # User Documentation Structure
 
@@ -1110,12 +1151,14 @@ js_optimization:
 - **Automation**: Setting up automated workflows
 
 ## Troubleshooting
+
 - Common issues and solutions
 - Error code reference
 - Support contact information
 ```
 
 ### 11.2 Technical Documentation
+
 ```markdown
 # Technical Documentation Structure
 
@@ -1143,6 +1186,7 @@ interface API {
 ```
 
 ## System Architecture
+
 ```mermaid
 graph TD
     A[Client] --> B[API Gateway]
@@ -1155,6 +1199,7 @@ graph TD
 ```
 
 ## Deployment Guide
+
 - **Local Development Setup**
 - **Production Deployment**
 - **Scaling Strategies**
@@ -1177,6 +1222,7 @@ graph TD
 ```
 
 ## Inline Help
+
 ```html
 <div class="help-section">
     <h3>Data Import Guide</h3>
@@ -1193,6 +1239,7 @@ graph TD
 ```
 
 ## Walkthroughs
+
 ```javascript
 const onboardingTour = {
     steps: [
@@ -1215,6 +1262,7 @@ const onboardingTour = {
 ```
 
 ### 11.4 Error Messages
+
 ```markdown
 # Error Handling System
 
@@ -1232,6 +1280,7 @@ interface ErrorMessage {
 ```
 
 ## Common Error Messages
+
 ```yaml
 data_import_errors:
   - code: DI001
@@ -1255,6 +1304,7 @@ analysis_errors:
 ```
 
 ## Error Display Components
+
 ```html
 <div class="error-message" role="alert">
     <div class="error-header">
@@ -1270,6 +1320,7 @@ analysis_errors:
 ```
 
 ## Error Recovery Flow
+
 ```mermaid
 graph TD
     A[Error Occurs] --> B[Display Error Message]
@@ -1285,6 +1336,7 @@ Would you like me to continue with enhancing other sections of the document or f
 ## 12. Accessibility & Inclusivity
 
 ### 12.1 Accessibility Standards
+
 ```markdown
 # Accessibility Implementation
 
@@ -1294,6 +1346,7 @@ Would you like me to continue with enhancing other sections of the document or f
 - Regular accessibility audits
 
 ## Keyboard Navigation
+
 ```html
 <div class="navigation" role="navigation" aria-label="Main menu">
     <button tabindex="0">Home</button>
@@ -1303,6 +1356,7 @@ Would you like me to continue with enhancing other sections of the document or f
 ```
 
 ## Screen Reader Support
+
 ```html
 <button 
     aria-label="Export data"
@@ -1316,6 +1370,7 @@ Would you like me to continue with enhancing other sections of the document or f
 ```
 
 ## Color Contrast
+
 ```css
 :root {
     --text-primary: #1a1a1a;
@@ -1325,6 +1380,7 @@ Would you like me to continue with enhancing other sections of the document or f
 ```
 
 ### 12.2 Inclusive Design
+
 ```markdown
 # Inclusive Design Principles
 
@@ -1347,6 +1403,7 @@ Would you like me to continue with enhancing other sections of the document or f
 ## 13. Performance Optimization
 
 ### 13.1 Loading Strategy
+
 ```markdown
 # Performance Optimization
 
@@ -1357,6 +1414,7 @@ Would you like me to continue with enhancing other sections of the document or f
 ```
 
 ## Lazy Loading
+
 ```html
 <img 
     src="placeholder.jpg" 
@@ -1366,11 +1424,13 @@ Would you like me to continue with enhancing other sections of the document or f
 ```
 
 ## Code Splitting
+
 ```javascript
 const AnalysisModule = React.lazy(() => import('./AnalysisModule'));
 ```
 
 ### 13.2 Performance Monitoring
+
 ```markdown
 # Performance Metrics
 
@@ -1396,6 +1456,7 @@ const performanceMetrics = {
 ## 14. Security & Privacy
 
 ### 14.1 Security Measures
+
 ```markdown
 # Security Implementation
 
@@ -1413,6 +1474,7 @@ const authConfig = {
 ```
 
 ## Data Protection
+
 ```yaml
 data_protection:
   encryption:
@@ -1424,6 +1486,7 @@ data_protection:
 ```
 
 ### 14.2 Privacy Compliance
+
 ```markdown
 # Privacy Implementation
 
@@ -1446,6 +1509,7 @@ data_protection:
 ## 15. Maintenance & Updates
 
 ### 15.1 Version Control
+
 ```markdown
 # Versioning Strategy
 
@@ -1458,6 +1522,7 @@ versioning:
 ```
 
 ## Changelog
+
 ```markdown
 # Changelog
 
@@ -1474,6 +1539,7 @@ versioning:
 ```
 
 ### 15.2 Update Strategy
+
 ```mermaid
 graph TD
     A[New Feature Request] --> B[Development]
@@ -1484,3 +1550,281 @@ graph TD
 ```
 
 Would you like me to focus on any specific section in more detail or add additional sections to the document?
+
+# UI/UX Design Guidelines
+
+## Design Philosophy
+
+The GeneralAnalyser interface follows a modern, clean design philosophy emphasizing:
+
+- Clarity and simplicity
+- Visual hierarchy
+- Consistent interactions
+- Immediate feedback
+- Accessibility
+
+## Color Palette
+
+### Primary Colors
+
+```css
+--primary: #2C3E50      /* Main brand color */
+--secondary: #3498DB    /* Secondary actions */
+--success: #2ECC71      /* Success states */
+--warning: #F1C40F      /* Warning states */
+--danger: #E74C3C       /* Error states */
+--info: #3498DB        /* Information states */
+```
+
+### Gray Scale
+
+```css
+--gray-100: #F8F9FA
+--gray-200: #E9ECEF
+--gray-300: #DEE2E6
+--gray-400: #CED4DA
+--gray-500: #ADB5BD
+--gray-600: #6C757D
+--gray-700: #495057
+--gray-800: #343A40
+--gray-900: #212529
+```
+
+## Typography
+
+### Font Stack
+
+```css
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, 
+            'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, 
+            Cantarell, 'Helvetica Neue', sans-serif;
+```
+
+### Font Sizes
+
+```css
+--text-xs: 0.75rem    /* 12px */
+--text-sm: 0.875rem   /* 14px */
+--text-base: 1rem     /* 16px */
+--text-lg: 1.125rem   /* 18px */
+--text-xl: 1.25rem    /* 20px */
+--text-2xl: 1.5rem    /* 24px */
+```
+
+## Component Guidelines
+
+### Buttons
+
+- Primary: Important actions
+- Secondary: Alternative actions
+- Ghost: Subtle actions
+- Danger: Destructive actions
+
+```css
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+```
+
+### Input Fields
+
+- Clear labeling
+- Validation feedback
+- Helper text when needed
+- Consistent padding and spacing
+
+### Cards & Boxes
+
+- Consistent padding (1.5rem)
+- Light shadows
+- Rounded corners (0.5rem)
+- Hover effects for interactive cards
+
+### Charts & Visualizations
+
+- Clear titles and labels
+- Consistent color scheme
+- Interactive tooltips
+- Responsive sizing
+- Loading states
+
+## Layout Guidelines
+
+### Grid System
+
+- 12-column grid
+- Responsive breakpoints:
+  - Mobile: < 768px
+  - Tablet: 768px - 1024px
+  - Desktop: > 1024px
+
+### Spacing Scale
+
+```css
+--space-1: 0.25rem    /* 4px */
+--space-2: 0.5rem     /* 8px */
+--space-3: 0.75rem    /* 12px */
+--space-4: 1rem       /* 16px */
+--space-6: 1.5rem     /* 24px */
+--space-8: 2rem       /* 32px */
+--space-12: 3rem      /* 48px */
+```
+
+### Component Spacing
+
+- Related items: 0.5rem
+- Section separators: 1.5rem
+- Major sections: 3rem
+
+## Interaction Patterns
+
+### Loading States
+
+- Skeleton screens for content
+- Progress indicators for actions
+- Subtle animations
+
+### Error Handling
+
+- Clear error messages
+- Recovery actions
+- Inline validation
+- Status indicators
+
+### Feedback & Notifications
+
+- Toast messages for updates
+- Modal confirmations for important actions
+- Inline validation feedback
+- Progress indicators
+
+## Accessibility Guidelines
+
+### Color Contrast
+
+- Meet WCAG 2.1 AA standards
+- Minimum contrast ratio: 4.5:1
+- Use contrast checker tools
+
+### Keyboard Navigation
+
+- Logical tab order
+- Focus indicators
+- Keyboard shortcuts
+
+### Screen Readers
+
+- Proper ARIA labels
+- Meaningful alt text
+- Semantic HTML
+
+## Responsive Design
+
+### Mobile First
+
+- Design for mobile first
+- Progressive enhancement
+- Touch-friendly targets
+- Simplified layouts
+
+### Breakpoint Strategy
+
+```css
+/* Mobile */
+@media (min-width: 640px) { ... }
+
+/* Tablet */
+@media (min-width: 768px) { ... }
+
+/* Desktop */
+@media (min-width: 1024px) { ... }
+
+/* Large Desktop */
+@media (min-width: 1280px) { ... }
+```
+
+## Animation Guidelines
+
+### Transitions
+
+- Duration: 200-300ms
+- Easing: ease-in-out
+- Use for state changes
+- Subtle and purposeful
+
+### Loading Animations
+
+- Subtle and unobtrusive
+- Clear progress indication
+- Consistent styling
+
+## Icon Guidelines
+
+### Usage
+
+- Consistent size (16px, 20px, 24px)
+- Clear meaning
+- Optional labels
+- Uniform styling
+
+### Icon Set
+
+- Use Font Awesome 5
+- Consistent weight
+- Limited color usage
+- Clear meaning
+
+## Dark Mode Guidelines
+
+### Colors
+
+```css
+.dark-mode {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #f8f9fa;
+    --text-secondary: #ced4da;
+}
+```
+
+### Considerations
+
+- Reduced contrast
+- No pure black
+- Subtle shadows
+- Maintained readability
+
+## Performance Guidelines
+
+### Loading Performance
+
+- Lazy loading for images
+- Code splitting
+- Resource optimization
+- Caching strategies
+
+### Interaction Performance
+
+- Debounced inputs
+- Throttled calculations
+- Optimized renders
+- Progressive loading
+
+## Documentation Guidelines
+
+### Component Documentation
+
+- Usage examples
+- Props/options
+- Common patterns
+- Accessibility notes
+
+### Style Documentation
+
+- Color usage
+- Typography examples
+- Layout patterns
+- Component variants

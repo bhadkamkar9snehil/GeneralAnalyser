@@ -1,0 +1,171 @@
+---
+title: "Getting Started with GeneralAnalyser"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with GeneralAnalyser}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GeneralAnalyser)
+```
+
+## Introduction
+
+GeneralAnalyser is a comprehensive analytics platform that enables users to perform advanced data analysis through an intuitive interface. This vignette will walk you through the basic usage of the package.
+
+## Data Input
+
+GeneralAnalyser supports multiple data sources:
+
+```{r eval=FALSE}
+# Load data from CSV
+data <- load_file_data("your_data.csv")
+
+# Connect to database
+db_params <- list(
+  host = "localhost",
+  dbname = "mydb",
+  user = "user",
+  password = "pass"
+)
+db_conn <- connect_db(db_params)
+
+# Fetch API data
+api_config <- list(
+  url = "https://api.example.com/data",
+  auth_token = "your_token"
+)
+api_data <- fetch_api_data(api_config)
+```
+
+## Time Series Analysis
+
+Perform time series forecasting:
+
+```{r eval=FALSE}
+# Create sample time series data
+data <- ts(rnorm(100) + 1:100, frequency = 12)
+
+# Generate forecast
+forecast_result <- ts_forecast(data, horizon = 12, method = "auto.arima")
+plot(forecast_result)
+
+# Decompose time series
+decomp <- ts_decompose(data)
+plot(decomp)
+```
+
+## Regression Analysis
+
+Fit and evaluate regression models:
+
+```{r eval=FALSE}
+# Prepare data
+data <- data.frame(
+  y = rnorm(100),
+  x1 = rnorm(100),
+  x2 = rnorm(100)
+)
+
+# Fit model
+model <- fit_regression(data, "y", c("x1", "x2"), method = "linear")
+
+# Cross-validate
+cv_results <- cross_validate(model, data)
+print(cv_results)
+
+# Get diagnostics
+diagnostics <- regression_diagnostics(model)
+```
+
+## Classification
+
+Train and evaluate classifiers:
+
+```{r eval=FALSE}
+# Prepare classification data
+data <- data.frame(
+  x1 = rnorm(100),
+  x2 = rnorm(100),
+  y = factor(rep(c("A", "B"), each = 50))
+)
+
+# Train classifier
+model <- train_classifier(data, "y", c("x1", "x2"), method = "rf")
+
+# Evaluate performance
+results <- evaluate_classifier(model, data, data$y)
+print(results$confusion_matrix)
+
+# Get feature importance
+importance <- feature_importance(model, c("x1", "x2"))
+```
+
+## Clustering
+
+Perform cluster analysis:
+
+```{r eval=FALSE}
+# Prepare clustering data
+data <- data.frame(
+  x = c(rnorm(50, 0), rnorm(50, 3)),
+  y = c(rnorm(50, 0), rnorm(50, 3))
+)
+
+# Perform clustering
+result <- perform_clustering(data, method = "kmeans", params = list(k = 2))
+
+# Evaluate clustering
+metrics <- evaluate_clustering(result)
+
+# Find optimal number of clusters
+optimal_k <- find_optimal_k(data, max_k = 10)
+```
+
+## Anomaly Detection
+
+Detect anomalies in your data:
+
+```{r eval=FALSE}
+# Generate sample data with anomalies
+data <- c(rnorm(100), rep(5, 5))
+
+# Detect anomalies
+anomalies <- detect_anomalies(data, method = "zscore")
+
+# Generate report
+report <- generate_anomaly_report(anomalies, data)
+print(report)
+
+# Detect seasonal anomalies
+seasonal_data <- ts(data, frequency = 12)
+seasonal_anomalies <- detect_seasonal_anomalies(seasonal_data)
+```
+
+## Customization
+
+The package supports custom themes and visualizations:
+
+```{r eval=FALSE}
+# Initialize custom theme
+theme <- initialize_theme(type = "dark")
+
+# Create custom plot theme
+plot_theme <- create_plot_theme(base_size = 14)
+
+# Apply custom dashboard theme
+dashboard_theme <- create_dashboard_theme(type = "dark")
+```
+
+## Conclusion
+
+This vignette covered the basic functionality of GeneralAnalyser. For more advanced usage and detailed documentation, please refer to the function documentation and other vignettes.
