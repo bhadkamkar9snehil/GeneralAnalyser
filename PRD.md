@@ -1,218 +1,183 @@
-Below is the complete updated Project Requirements Document (PRD.MD) with the revised non‑functional requirements:
-
----
-
-# General Forecasting Tool - Project Requirements Document (v2.0)
+# General Forecasting Tool - Project Requirements Document (v3.0)
 
 ## 1. Executive Summary
-A no-code analytics platform that enables users to perform advanced data analysis through an intuitive interface, supporting both file-based and live data sources, with automated model deployment capabilities.
+A no-code analytics platform enabling users to perform advanced data analysis through an intuitive interface, supporting both file-based and live data sources, with automated model deployment capabilities. The platform will provide comprehensive data processing, analysis, and visualization features with robust security and performance.
 
-## 2. Project Phases
+## 2. Core Features
 
-### Phase 1: Core Analytics Platform
-**Objective**: Create a file-based analysis system with comprehensive algorithm support
-- File processing system
-- Algorithm implementation
-- Interactive visualization
-- Basic reporting
+### 2.1 Data Management
+- **File Upload**: Support for CSV, Excel, JSON, XML
+- **API Integration**: No-code API configuration
+- **Database Connectivity**: SQL and NoSQL support
+- **Data Validation**: Real-time data quality checks
+- **Data Transformation**: Built-in ETL capabilities
 
-**Timeline**: 6 weeks  
-**Deliverables**:
-- Working dashboard application
-- Support for multiple file formats
-- Implementation of key algorithms
-- Basic visualization system
+### 2.2 Analysis Capabilities
+- **Time Series Analysis**: ARIMA, Exponential Smoothing
+- **Regression Analysis**: Linear, Logistic, Polynomial
+- **Classification**: Decision Trees, Random Forest, SVM
+- **Clustering**: K-Means, Hierarchical, DBSCAN
+- **Anomaly Detection**: Statistical, ML-based methods
 
-### Phase 2: Live Data Integration
-**Objective**: Implement no-code API integration system
-- No-code API configurator
-- Live data processing
-- Real-time analysis capabilities
+### 2.3 Visualization
+- **Interactive Charts**: Line, Bar, Pie, Scatter
+- **Advanced Visualizations**: Heatmaps, Treemaps, Network Graphs
+- **Dashboard Customization**: Drag-and-drop interface
+- **Real-time Updates**: Streaming data visualization
+- **Export Options**: PNG, PDF, CSV
 
-**Timeline**: 6 weeks  
-**Deliverables**:
-- API configuration interface
-- Real-time data processing
-- Live analysis system
-
-### Phase 3: Automated Analytics Pipeline
-**Objective**: Create continuous analysis system with result storage
-- Automated model execution
-- Result storage system
-- Live dashboard updates
-
-**Timeline**: 6 weeks  
-**Deliverables**:
-- Automated pipeline
-- Database integration
-- Real-time dashboard
-
-### Phase 4: Deployment & Packaging
-**Objective**: Package solution for easy deployment
-- Docker containerization
-- Single-package deployment
-- Update system
-
-**Timeline**: 4 weeks  
-**Deliverables**:
-- Docker container
-- Installation package
-- Documentation
+### 2.4 Model Management
+- **Model Training**: Automated hyperparameter tuning
+- **Model Deployment**: One-click deployment
+- **Model Monitoring**: Performance tracking
+- **Version Control**: Model versioning
+- **Explainability**: SHAP values, Feature Importance
 
 ## 3. Technical Requirements
 
 ### 3.1 Core Technologies
-- R & Shiny
-- MongoDB
-- Redis
-- Docker
-- Nginx
-
-### 3.2 R Package Dependencies
-```R
-core_packages <- c(
-  # UI Packages
-  "shiny",
-  "shinydashboard",
-  "shinydashboardPlus",
-  "shinyjs",
-  "shinyWidgets",
-  "shinycssloaders",
-  
-  # Data Processing
-  "dplyr",
-  "tidyr",
-  "data.table",
-  "lubridate",
-  
-  # API & Integration
-  "httr",
-  "jsonlite",
-  "mongolite",
-  "redux",
-  
-  # Visualization
-  "ggplot2",
-  "plotly",
-  "DT",
-  "ggthemes",
-  
-  # Machine Learning
-  "forecast",
-  "randomForest",
-  "xgboost",
-  "keras",
-  "tensorflow"
-)
+```mermaid
+graph TD
+    subgraph Tech Stack
+        A[Frontend] --> B[React]
+        A --> C[Redux]
+        A --> D[Chart.js]
+        
+        E[Backend] --> F[Node.js]
+        E --> G[Express]
+        E --> H[Python]
+        
+        I[Database] --> J[MongoDB]
+        I --> K[Redis]
+        I --> L[PostgreSQL]
+        
+        M[Infrastructure] --> N[Docker]
+        M --> O[Kubernetes]
+        M --> P[NGINX]
+    end
 ```
 
-### 3.3 Infrastructure Requirements
-- Minimum 8GB RAM
-- 4 CPU cores
-- 50GB storage
-- Network connectivity for API access
+### 3.2 Performance Requirements
+- **Response Time**: < 2 seconds for 95% of requests
+- **Concurrency**: Support 50+ concurrent users
+- **Data Handling**: Process datasets up to 10GB
+- **Uptime**: 99.9% availability
+- **Scalability**: Horizontal scaling capability
 
-## 4. Functional Requirements
+### 3.3 Security Requirements
+- **Authentication**: OAuth2.0, JWT
+- **Authorization**: Role-based access control
+- **Data Protection**: AES-256 encryption
+- **Audit Logs**: Comprehensive activity tracking
+- **Compliance**: GDPR, CCPA, HIPAA
 
-### 4.1 Data Input
-- File upload (CSV, Excel, JSON)
-- API integration
-- Database connections
-- Real-time data streams
+## 4. Implementation Phases
 
-### 4.2 Analysis Capabilities
-- Time series analysis
-- Regression analysis
-- Classification
-- Clustering
-- Anomaly detection
+### Phase 1: Core Platform (Weeks 1-6)
+```mermaid
+gantt
+    title Phase 1: Core Platform
+    dateFormat  YYYY-MM-DD
+    section Architecture
+    System Design          :a1, 2023-11-01, 7d
+    API Specification      :a2, after a1, 5d
+    Database Design        :a3, after a1, 5d
+    
+    section Frontend
+    UI Framework Setup     :b1, 2023-11-01, 3d
+    Core Components        :b2, after b1, 10d
+    Basic Navigation       :b3, after b2, 5d
+    
+    section Backend
+    API Development        :c1, after a2, 10d
+    Data Processing        :c2, after a3, 10d
+    Basic Analysis         :c3, after c1, 7d
+```
 
-### 4.3 Visualization
-- Interactive charts
-- Real-time updates
-- Custom dashboards
-- Export capabilities
+### Phase 2: Advanced Features (Weeks 7-12)
+```mermaid
+gantt
+    title Phase 2: Advanced Features
+    dateFormat  YYYY-MM-DD
+    section Analysis
+    Time Series Models     :a1, 2023-12-15, 10d
+    Regression Models      :a2, after a1, 7d
+    Classification Models  :a3, after a2, 7d
+    
+    section Visualization
+    Chart Library          :b1, 2023-12-15, 7d
+    Dashboard Builder      :b2, after b1, 10d
+    Real-time Updates      :b3, after b2, 7d
+    
+    section Integration
+    API Connector          :c1, 2023-12-15, 10d
+    Database Integration   :c2, after c1, 7d
+    Data Validation        :c3, after c2, 5d
+```
 
-### 4.4 Model Management
-- Model training
-- Deployment
-- Monitoring
-- Version control
+### Phase 3: Deployment & Optimization (Weeks 13-18)
+```mermaid
+gantt
+    title Phase 3: Deployment & Optimization
+    dateFormat  YYYY-MM-DD
+    section Deployment
+    Containerization       :a1, 2024-01-26, 7d
+    CI/CD Pipeline         :a2, after a1, 5d
+    Load Testing           :a3, after a2, 5d
+    
+    section Optimization
+    Performance Tuning     :b1, 2024-01-26, 10d
+    Security Hardening     :b2, after b1, 7d
+    Accessibility Audit    :b3, after b2, 5d
+    
+    section Documentation
+    User Guides            :c1, 2024-01-26, 7d
+    API Documentation      :c2, after c1, 5d
+    Technical Manual       :c3, after c2, 5d
+```
 
-## 5. Non-Functional Requirements
+## 5. Project Timeline
+```mermaid
+gantt
+    title Project Timeline
+    dateFormat  YYYY-MM-DD
+    section Phases
+    Core Platform          :a1, 2023-11-01, 2023-12-15
+    Advanced Features      :a2, 2023-12-15, 2024-01-26
+    Deployment & Optimization :a3, 2024-01-26, 2024-03-01
+    
+    section Milestones
+    MVP Release            :milestone, m1, 2023-12-15, 0d
+    Feature Complete       :milestone, m2, 2024-01-26, 0d
+    Production Release     :milestone, m3, 2024-03-01, 0d
+    
+    section Dependencies
+    a1 --> a2
+    a2 --> a3
+```
 
-### 5.1 Performance
-- **Response Time:** Less than 2 seconds
-- **Concurrent Users:** Support for up to 50 concurrent users
-- **Dataset Handling:** Capable of processing and analyzing multi-gigabyte datasets
-- **Real-time Processing:** Ensure real-time data processing capabilities
+## 6. Risk Management
 
-### 5.2 Security
-- User authentication
-- Role-based access control
-- Data encryption
-- Robust API security measures
+### 6.1 Technical Risks
+- Performance bottlenecks with large datasets
+- Integration challenges with external APIs
+- Model training and deployment complexity
 
-### 5.3 Reliability
-- 99.9% uptime target
-- Automated backups
-- Error recovery mechanisms
-- Comprehensive data validation
+### 6.2 Mitigation Strategies
+- Implement distributed computing for large data
+- Use API gateway for integration management
+- Containerize models for consistent deployment
 
-### 5.4 Usability
-- Intuitive and user-friendly interface
-- Responsive design across devices
-- Comprehensive help system and user onboarding
+## 7. Success Metrics
+- **User Adoption**: 100+ active users in first month
+- **Performance**: < 2s response time for 95% of requests
+- **Reliability**: 99.9% uptime in production
+- **Accuracy**: > 90% model accuracy for core algorithms
+- **Satisfaction**: > 4.5/5 user satisfaction rating
 
-### 5.5 Deployment
-- **Ease of Deployment:** The application should be easy to deploy with minimal configuration steps
-- **Containerization:** Provide containerized deployment (e.g., via Docker) along with a single-package installation solution
-
-## 6. Milestones & Deliverables
-
-### Phase 1 (Weeks 1-6)
-1. Project Setup (Week 1)
-2. File Processing (Week 2)
-3. Algorithm Implementation (Weeks 3-4)
-4. Visualization System (Week 5)
-5. Testing & Refinement (Week 6)
-
-### Phase 2 (Weeks 7-12)
-1. API Configurator (Weeks 7-8)
-2. Live Data Processing (Weeks 9-10)
-3. Real-time Analysis (Weeks 11-12)
-
-### Phase 3 (Weeks 13-18)
-1. Automation System (Weeks 13-14)
-2. Storage Implementation (Weeks 15-16)
-3. Dashboard Updates (Weeks 17-18)
-
-### Phase 4 (Weeks 19-22)
-1. Docker Setup (Weeks 19-20)
-2. Deployment Package (Weeks 21-22)
-
-## 7. Risk Management
-
-### 7.1 Technical Risks
-- Performance issues with large datasets
-- API integration complexity
-- Real-time processing challenges
-
-### 7.2 Mitigation Strategies
-- Rigorous performance testing
-- Modular and scalable development approach
-- Comprehensive end-to-end testing
-
-## 8. Success Criteria
-- Successful deployment of the platform
-- High user adoption and engagement
-- Meeting defined performance metrics
-- Achieving reliability and uptime targets
-- Overall user satisfaction
-
-## 9. Future Enhancements
-- Integration of advanced algorithms
-- Support for additional data sources
-- Development of a mobile application
-- Enhanced visualizations and interactive features
-- Incorporation of AI-powered insights
+## 8. Future Enhancements
+- **Mobile App**: Native iOS and Android applications
+- **AI Assistant**: Natural language query interface
+- **Collaboration**: Real-time team collaboration
+- **Marketplace**: Pre-built model marketplace
+- **Automation**: AI-driven workflow automation

@@ -500,7 +500,7 @@ server <- function(input, output, session) {
           if(nrow(df_fc) > 0) {
             colChoice <- if(!is.null(sc[mod])) sc[mod] else "gray"
             p <- p + geom_line(data = df_fc, aes(x = Time, y = Forecast),
-                               color = colChoice, linetype = "dashed")
+                               color = colChoice, linetype = "dotted")
             if("Lower" %in% names(df_fc) && "Upper" %in% names(df_fc)) {
               p <- p + geom_ribbon(data = df_fc, 
                                    aes(x = Time, ymin = Lower, ymax = Upper),
@@ -519,7 +519,7 @@ server <- function(input, output, session) {
           if(nrow(df_fc) > 0) {
             colChoice <- if(!is.null(sc[mod])) sc[mod] else "gray"
             p <- p + geom_line(data = df_fc, aes(x = Time, y = Forecast),
-                               color = colChoice, linetype = "dashed")
+                               color = colChoice, linetype = "dotted")
           }
         }
       }

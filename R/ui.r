@@ -17,34 +17,42 @@ ui <- shinydashboardPlus::dashboardPage(
     )
   ),
   body = dashboardBody(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$link(rel = "stylesheet", href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap")
+    ),
     tabItems(
       # Data & Analysis Tab
       tabItem(tabName = "data_analysis",
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Data Table (First 20 Rows)",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  width = 12, collapsible = TRUE, icon = icon("table"),
+                  status = "navy", solidHeader = TRUE,
                   DT::dataTableOutput("previewTableMain")
                 )
               ),
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Basic Statistics (Mean & SD)",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   plotlyOutput("statsPlot", height = "300px")
                 )
               ),
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Trends for Numeric Columns",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   plotlyOutput("trendPlot", height = "500px")
                 )
               ),
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Correlation Heatmap",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   plotlyOutput("corPlot", height = "300px")
                 )
               )
@@ -52,16 +60,18 @@ ui <- shinydashboardPlus::dashboardPage(
       # Regression Tab
       tabItem(tabName = "regression_output",
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Regression Model Summaries",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   uiOutput("regressionSummary")
                 )
               ),
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Regression Charts (Actual vs Predicted)",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   uiOutput("regressionPlot")
                 )
               )
@@ -69,9 +79,10 @@ ui <- shinydashboardPlus::dashboardPage(
       # Combined Forecast Tab
       tabItem(tabName = "combined_forecast",
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Combined Forecast (Plotly)",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   plotlyOutput("combinedForecastPlot", height = "400px")
                 )
               )
@@ -79,24 +90,27 @@ ui <- shinydashboardPlus::dashboardPage(
       # Aggregated Outputs Tab
       tabItem(tabName = "aggregated_outputs",
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Overall Forecasts (Test Set)",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   plotlyOutput("forecastPlot", height = "300px")
                 )
               ),
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Overall Residuals (Test Set)",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   plotlyOutput("residualPlot", height = "300px"),
                   DT::dataTableOutput("errorMetrics")
                 )
               ),
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Algorithm Comparison (RMSE)",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  status = "navy",
                   plotlyOutput("comparisonPlot", height = "300px")
                 )
               )
@@ -104,9 +118,10 @@ ui <- shinydashboardPlus::dashboardPage(
       # Best Model Tab
       tabItem(tabName = "best_model",
               fluidRow(
-                box(
+                shinydashboardPlus::box(
                   title = "Best Performing Model",
-                  width = 12, status = "success", solidHeader = TRUE,
+                  width = 12, solidHeader = TRUE,
+                  status = "navy",
                   uiOutput("bestAlgorithm")
                 )
               )

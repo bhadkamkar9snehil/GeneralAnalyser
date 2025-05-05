@@ -1,0 +1,14 @@
+---
+description: Create R Scripts
+globs: 
+alwaysApply: false
+---
+
+You are an expert in R programming language.
+In case you are not able to provide complete code, add To-Do comments in R's syntax at the top of the script.
+Always track changes and maintain a changelog in a separate markdown file in the working directory.
+Add brief changelog at the top of the script.
+Add features for debugging and testing.
+Write clean code.
+Always check code before providing output.
+DO NOT HALLUCINATE PACKAGE NAMES.

@@ -1,5 +1,3 @@
-# ui.R
-
 library(shiny)
 library(shinydashboard)
 library(shinydashboardPlus)
@@ -7,12 +5,9 @@ library(DT)
 library(plotly)
 
 ui <- shinydashboardPlus::dashboardPage(
-  
-  # Header: Simple title as specified in the design doc.
   header = dashboardHeader(title = "General Analytics Platform"),
   
-  # Sidebar: Navigation based entirely on the design document.
-  # Each primary menu item is split into child items corresponding to individual components.
+  # Sidebar: Navigation based solely on the design document
   sidebar = dashboardSidebar(
     sidebarMenu(
       id = "tabs",
@@ -48,84 +43,106 @@ ui <- shinydashboardPlus::dashboardPage(
     )
   ),
   
-  # Main body: Each tabItem corresponds to a child item from the sidebar.
+  # Body: Each tabItem corresponds to one navigation child.
   body = dashboardBody(
     tabItems(
-      # Landing Page: Welcome / Authentication overview.
+      # Landing Page: Welcome screen
       tabItem(tabName = "landing",
               fluidRow(
                 box(
+                  id = "landingBox",
                   title = "Welcome",
-                  width = 12,
                   status = "primary",
                   solidHeader = TRUE,
-                  "Welcome to the General Analytics Platform. Please sign in or explore our features."
+                  collapsible = TRUE,
+                  closable = TRUE,
+                  width = 12,
+                  "Welcome to the General Analytics Platform. Please sign in or explore our features.",
+                  sidebar = boxSidebar(
+                    id = "landingSidebar",
+                    width = 25,
+                    sliderInput("welcomeSlider", "Welcome Slider:", min = 0, max = 100, value = 50)
+                  )
                 )
               )
       ),
       
-      # Data Hub components.
+      # Data Hub: File Manager
       tabItem(tabName = "fileManager",
               fluidRow(
                 box(
+                  id = "fileManagerBox",
                   title = "File Manager",
-                  width = 12,
                   status = "info",
                   solidHeader = TRUE,
-                  fileInput("fileManagerInput", "Upload File:", accept = c(".csv", ".xls", ".xlsx")),
-                  actionButton("browseFiles", "Browse Files"),
-                  verbatimTextOutput("fileManagerHistory")
+                  collapsible = TRUE,
+                  width = 12,
+                  fileInput("fileManagerInput", "Upload File (CSV/Excel):", 
+                            accept = c(".csv", ".xls", ".xlsx")),
+                  verbatimTextOutput("fileInfo"),
+                  DT::dataTableOutput("filePreview")
                 )
               )
       ),
       
+      # Data Hub: API Builder (placeholder)
       tabItem(tabName = "apiBuilder",
               fluidRow(
                 box(
+                  id = "apiBuilderBox",
                   title = "API Builder",
-                  width = 12,
                   status = "warning",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   textInput("apiEndpoint", "API Endpoint:", value = ""),
                   actionButton("testAPI", "Test API")
                 )
               )
       ),
       
+      # Data Hub: Database Connect (placeholder)
       tabItem(tabName = "dbConnect",
               fluidRow(
                 box(
+                  id = "dbConnectBox",
                   title = "Database Connect",
-                  width = 12,
                   status = "success",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   textInput("dbConnection", "Database Connection String:", value = ""),
                   actionButton("connectDB", "Connect")
                 )
               )
       ),
       
-      # Analysis Center components.
+      # Analysis Center: Data Explorer
       tabItem(tabName = "dataExplorer",
               fluidRow(
                 box(
+                  id = "dataExplorerBox",
                   title = "Data Explorer",
-                  width = 12,
                   status = "info",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   DT::dataTableOutput("dataExplorerTable"),
-                  actionButton("transformData", "Transform Data")
+                  actionButton("refreshExplorer", "Refresh Data")
                 )
               )
       ),
       
+      # Analysis Center: Algorithm Lab
       tabItem(tabName = "algorithmLab",
               fluidRow(
                 box(
+                  id = "algorithmLabBox",
                   title = "Algorithm Lab",
-                  width = 12,
                   status = "primary",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   selectInput("algorithmSelect", "Select Algorithm:",
                               choices = c("ARIMA", "ETS", "NNETAR", "VAR", "Random Forest")),
                   numericInput("param1", "Parameter 1:", value = 10, min = 1),
@@ -134,107 +151,183 @@ ui <- shinydashboardPlus::dashboardPage(
               )
       ),
       
+      # Analysis Center: Results View
       tabItem(tabName = "resultsView",
               fluidRow(
                 box(
+                  id = "resultsViewBox",
                   title = "Results View",
-                  width = 12,
                   status = "danger",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   plotlyOutput("resultsPlot", height = "300px"),
                   downloadButton("exportResults", "Export Results")
+                )
+              ),
+              fluidRow(
+                box(
+                  id = "statsBox",
+                  title = "Basic Statistics (Mean & SD)",
+                  status = "primary",
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 6,
+                  plotlyOutput("statsPlot", height = "300px")
+                ),
+                box(
+                  id = "trendBox",
+                  title = "Trends for Numeric Columns",
+                  status = "info",
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 6,
+                  plotlyOutput("trendPlot", height = "300px")
+                )
+              ),
+              fluidRow(
+                box(
+                  id = "correlationBox",
+                  title = "Correlation Heatmap",
+                  status = "warning",
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
+                  plotlyOutput("corPlot", height = "300px")
                 )
               )
       ),
       
-      # Model Studio components.
+      # Model Studio: Model Training
       tabItem(tabName = "modelTraining",
               fluidRow(
                 box(
+                  id = "modelTrainingBox",
                   title = "Model Training",
-                  width = 12,
                   status = "info",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   textInput("modelName", "Model Name:", value = ""),
                   actionButton("trainModel", "Train Model")
                 )
               )
       ),
       
+      # Model Studio: Deployment
       tabItem(tabName = "deployment",
               fluidRow(
                 box(
+                  id = "deploymentBox",
                   title = "Deployment",
-                  width = 12,
                   status = "success",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   actionButton("deployModel", "Deploy Model"),
                   verbatimTextOutput("deployStatus")
                 )
               )
       ),
       
+      # Model Studio: Monitoring
       tabItem(tabName = "monitoring",
               fluidRow(
                 box(
+                  id = "monitoringBox",
                   title = "Monitoring",
-                  width = 12,
                   status = "warning",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   plotlyOutput("monitorPlot", height = "300px"),
                   verbatimTextOutput("monitorStatus")
                 )
               )
       ),
       
-      # Live Dashboard components.
+      # Live Dashboard: Live Metrics
       tabItem(tabName = "liveMetrics",
               fluidRow(
                 box(
+                  id = "liveMetricsBox",
                   title = "Live Metrics",
-                  width = 12,
                   status = "info",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   plotlyOutput("liveMetricsPlot", height = "300px")
                 )
               )
       ),
       
+      # Live Dashboard: Alerts & Notifications
       tabItem(tabName = "alertsNotifications",
               fluidRow(
                 box(
+                  id = "alertsBox",
                   title = "Alerts & Notifications",
-                  width = 12,
                   status = "danger",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
                   verbatimTextOutput("alertsOutput")
                 )
               )
       ),
       
-      # Settings components.
+      # Settings: General Settings – includes standard and advanced form inputs.
       tabItem(tabName = "generalSettings",
               fluidRow(
                 box(
+                  id = "generalSettingsBox",
                   title = "General Settings",
-                  width = 6,
                   status = "primary",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 6,
                   textInput("settingText", "Text Input:", value = ""),
                   selectInput("settingSelect", "Select Option:", choices = c("Option 1", "Option 2", "Option 3")),
                   dateInput("settingDate", "Select Date:", value = Sys.Date()),
                   fileInput("settingFile", "Upload File:", accept = c(".csv", ".xls", ".xlsx"))
+                ),
+                box(
+                  id = "advancedSettingsBox",
+                  title = "Advanced Form Components",
+                  status = "info",
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 6,
+                  textAreaInput("richText", "Rich Text Editor:", value = "Enter formatted text here...", rows = 4),
+                  textAreaInput("codeEditor", "Code Editor:", value = "# Write your code here", rows = 4),
+                  textAreaInput("jsonBuilder", "JSON Builder:", value = '{"key": "value"}', rows = 3)
+                )
+              ),
+              fluidRow(
+                box(
+                  id = "interactiveElementsBox",
+                  title = "Interactive Elements",
+                  status = "warning",
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 12,
+                  sliderInput("sliderInput", "Slider Input:", min = 0, max = 100, value = 50),
+                  sliderInput("rangeSelector", "Range Selector:", min = 0, max = 100, value = c(25,75)),
+                  textInput("colorPicker", "Color Picker (hex code):", value = "#FF0000")
                 )
               )
       ),
       
+      # Settings: User Profile
       tabItem(tabName = "userProfile",
               fluidRow(
                 box(
+                  id = "userProfileBox",
                   title = "User Profile",
-                  width = 6,
                   status = "info",
                   solidHeader = TRUE,
+                  collapsible = TRUE,
+                  width = 6,
                   textInput("userName", "User Name:", value = ""),
                   passwordInput("userPassword", "Password:"),
                   actionButton("updateProfile", "Update Profile")
@@ -244,7 +337,7 @@ ui <- shinydashboardPlus::dashboardPage(
     )
   ),
   
-  # Control Bar: Now contains only the appearance control.
+  # Control Bar: Only contains appearance controls.
   controlbar = dashboardControlbar(
     id = "controlbar",
     disable = FALSE,
