@@ -22,6 +22,25 @@ library(rpart)
 #' @import dplyr
 NULL
 
+# Helper Functions
+
+#' Load data from uploaded file
+#' @param file The uploaded file object
+#' @return Dataframe containing the loaded data
+load_file_data <- function(file) {
+    ext <- tools::file_ext(file$datapath)
+    
+    if (ext == "csv") {
+        data <- read.csv(file$datapath, header = TRUE, stringsAsFactors = FALSE)
+    } else if (ext %in% c("xls", "xlsx")) {
+        data <- readxl::read_excel(file$datapath)
+    } else {
+        stop("Unsupported file format. Please upload a CSV or Excel file.")
+    }
+    
+    return(data)
+}
+
 server <- function(input, output, session) {
     # Reactive values for storing state
     values <- reactiveValues(
@@ -35,6 +54,21 @@ server <- function(input, output, session) {
         req(input$file)
         tryCatch({
             values$data <- load_file_data(input$file)
+            
+            # Update column selection dropdowns
+            updateSelectInput(session, "time_col", 
+                choices = names(values$data))
+            updateSelectInput(session, "target_col", 
+                choices = names(values$data))
+            updateSelectizeInput(session, "multivar_cols", 
+                choices = names(values$data))
+            
+            # Update regressor selection if regression is enabled
+            if (input$runRegression) {
+                updateSelectizeInput(session, "regressors",
+                    choices = names(values$data))
+            }
+            
             showNotification("Data loaded successfully", type = "message")
         }, error = function(e) {
             showNotification(paste("Error loading data:", e$message), type = "error")
