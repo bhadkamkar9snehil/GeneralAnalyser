@@ -275,3 +275,47 @@ create_error_message <- function(message, details = NULL) {
         }
     )
 }
+
+# Create loading overlay for boxes
+create_loading_overlay <- function(id) {
+    div(
+        class = "loading-overlay",
+        id = ns(id),
+        style = "display: none;",
+        div(
+            class = "loading-spinner",
+            tags$i(class = "fa fa-spinner fa-spin"),
+            "Loading..."
+        )
+    )
+}
+
+# Create error message for boxes
+create_error_message <- function(id) {
+    div(
+        class = "error-message",
+        id = ns(id),
+        style = "display: none;",
+        icon("exclamation-triangle"),
+        tags$span(class = "error-text")
+    )
+}
+
+# Enhanced box creation with loading and error states
+create_analysis_box <- function(id, title, status = "primary", ...) {
+    ns <- NS(id)
+    
+    box(
+        title = title,
+        status = status,
+        solidHeader = TRUE,
+        collapsible = TRUE,
+        width = NULL,
+        div(
+            class = "box-content",
+            create_loading_overlay(ns("loading")),
+            create_error_message(ns("error")),
+            ...
+        )
+    )
+}

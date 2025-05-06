@@ -29,6 +29,9 @@ check_and_install_packages(packages)
 # Source data handling functions
 source("data/data_handlers.R")
 
+# Load analysis modules
+source("analysis/time_series.R")
+
 # Global helper functions
 impute_values <- function(x) {
   if(!is.numeric(x)) {

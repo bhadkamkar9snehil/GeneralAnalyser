@@ -5,7 +5,14 @@ library(DT)
 library(plotly)
 
 ui <- shinydashboardPlus::dashboardPage(
-  header = shinydashboardPlus::dashboardHeader(title = "General Forecasting Tool"),
+  header = shinydashboardPlus::dashboardHeader(
+    title = "General Forecasting Tool",
+    dropdownMenu(type = "notifications", badgeStatus = "warning", icon = icon("bell"),
+      notificationItem(text = "System Status: Online", icon = icon("check")),
+      notificationItem(text = "Memory Usage: Normal", icon = icon("memory")),
+      notificationItem(text = "CPU Load: Normal", icon = icon("microchip"))
+    )
+  ),
   sidebar = shinydashboardPlus::dashboardSidebar(
     sidebarMenu(
       id = "tabs",
@@ -29,7 +36,16 @@ ui <- shinydashboardPlus::dashboardPage(
                   title = "Data Table (First 20 Rows)",
                   width = 12, collapsible = TRUE, icon = icon("table"),
                   status = "navy", solidHeader = TRUE,
-                  DT::dataTableOutput("previewTableMain")
+                  div(class = "box-content",
+                      div(class = "loading-overlay", style = "display: none;",
+                          div(class = "loading-spinner", icon("spinner", class = "fa-spin"), "Loading data...")),
+                      div(class = "empty-state", id = "dataTableEmpty",
+                          icon("database"),
+                          h4("No Data Available"),
+                          p("Upload your data to begin analysis"),
+                          actionButton("uploadData", "Upload Data", class = "btn-primary")),
+                      DT::dataTableOutput("previewTableMain")
+                  )
                 )
               ),
               fluidRow(
@@ -37,7 +53,15 @@ ui <- shinydashboardPlus::dashboardPage(
                   title = "Basic Statistics (Mean & SD)",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
                   status = "navy",
-                  plotlyOutput("statsPlot", height = "300px")
+                  div(class = "box-content",
+                      div(class = "loading-overlay", style = "display: none;",
+                          div(class = "loading-spinner", icon("spinner", class = "fa-spin"), "Calculating statistics...")),
+                      div(class = "empty-state", id = "statsEmpty",
+                          icon("calculator"),
+                          h4("No Statistics Available"),
+                          p("Statistics will appear here once data is loaded")),
+                      plotlyOutput("statsPlot", height = "300px")
+                  )
                 )
               ),
               fluidRow(
@@ -45,7 +69,15 @@ ui <- shinydashboardPlus::dashboardPage(
                   title = "Trends for Numeric Columns",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
                   status = "navy",
-                  plotlyOutput("trendPlot", height = "500px")
+                  div(class = "box-content",
+                      div(class = "loading-overlay", style = "display: none;",
+                          div(class = "loading-spinner", icon("spinner", class = "fa-spin"), "Analyzing trends...")),
+                      div(class = "empty-state", id = "trendsEmpty",
+                          icon("chart-line"),
+                          h4("No Trend Analysis Available"),
+                          p("Trend analysis will appear here once data is loaded")),
+                      plotlyOutput("trendPlot", height = "500px")
+                  )
                 )
               ),
               fluidRow(
@@ -53,7 +85,15 @@ ui <- shinydashboardPlus::dashboardPage(
                   title = "Correlation Heatmap",
                   width = 12, collapsible = TRUE, solidHeader = TRUE,
                   status = "navy",
-                  plotlyOutput("corPlot", height = "300px")
+                  div(class = "box-content",
+                      div(class = "loading-overlay", style = "display: none;",
+                          div(class = "loading-spinner", icon("spinner", class = "fa-spin"), "Calculating correlations...")),
+                      div(class = "empty-state", id = "correlationEmpty",
+                          icon("project-diagram"),
+                          h4("No Correlation Analysis Available"),
+                          p("Correlation heatmap will appear here once data is loaded")),
+                      plotlyOutput("corPlot", height = "300px")
+                  )
                 )
               )
       ),
@@ -135,97 +175,26 @@ ui <- shinydashboardPlus::dashboardPage(
     collapsed = FALSE,
     overlay = TRUE,
     skin = "light",
-    .list = list(
-      controlbarMenu(
-        id = "controlbarMenu",
-        # Data & Forecast Inputs
-        controlbarItem(
-          title = "Data & Forecast",
-          fileInput("file", "Upload CSV/Excel File", accept = c(".csv", ".xls", ".xlsx")),
-          selectInput("time_col", "Select Time Column:", choices = NULL),
-          selectInput("target_col", "Select Target Column:", choices = NULL),
-          selectizeInput("multivar_cols", "Additional Columns (optional):", choices = NULL, multiple = TRUE),
-          sliderInput("split_ratio", "Training Ratio:", min = 0.1, max = 0.9, value = 0.8, step = 0.1),
-          numericInput("future_periods", "Future Periods:", value = 10, min = 1),
-          selectizeInput("algorithms", "Select Algorithm(s):",
-                         choices = list(
-                           Forecasting = c("ARIMA", "ETS", "NNETAR", "VAR", "SVAR", "Random Forest"),
-                           Regression  = c("Linear Regression", "Ridge Regression", "Lasso Regression",
-                                           "Elastic Net", "Random Forest Regression", "Support Vector Regression", "Decision Tree Regression")
-                         ),
-                         multiple = TRUE),
-          checkboxInput("runRegression", "Run Regression Analysis", FALSE),
-          conditionalPanel(
-            condition = "input.runRegression == true",
-            selectizeInput("regressors", "Select Predictor Columns:", choices = NULL, multiple = TRUE)
-          ),
-          actionButton("runAnalysis", "Run Analysis", 
-                       class = "btn", 
-                       style = "background-color: lightgreen; font-size: 18px; padding: 10px 20px; margin-top: 15px;")
-        ),
-        # Chart Settings
-        controlbarItem(
-          title = "Chart Settings",
-          tabsetPanel(
-            tabPanel("Theme & Palette",
-                     selectInput("chart_to_customize", "Customize Chart:",
-                                 choices = c("All Charts", "Combined Forecast", "Forecast Plot", "Residual Plot",
-                                             "Trend Plot", "Correlation Heatmap", "Basic Statistics"),
-                                 selected = "All Charts"),
-                     selectInput("ggplot_theme", "Select ggplot Theme:",
-                                 choices = c("Minimal", "Classic", "BW", "Light", "Void", "Gray", "Economist",
-                                             "Fivethirtyeight", "Stata", "Solarized"),
-                                 selected = "Minimal"),
-                     selectInput("series_palette", "Series Colour Palette:",
-                                 choices = c("Default", "Set 2", "Dark2", "Pastel1"), selected = "Default"),
-                     selectInput("cor_color_scheme", "Correlation Color Scheme:",
-                                 choices = c("Blue-Red", "Purple-Green", "Orange-Blue"), selected = "Blue-Red")
-            ),
-            tabPanel("Text Options",
-                     checkboxInput("change_labels", "Change axis labels", FALSE),
-                     conditionalPanel(
-                       condition = "input.change_labels == true",
-                       textInput("custom_title", "Custom Plot Title:", value = "Combined Forecast"),
-                       textInput("custom_xlab", "Custom X-axis Label:", value = "Time"),
-                       textInput("custom_ylab", "Custom Y-axis Label:", value = "Target Value")
-                     ),
-                     checkboxInput("adjust_font", "Adjust Font Sizes", FALSE),
-                     conditionalPanel(
-                       condition = "input.adjust_font == true",
-                       numericInput("axis_text_size", "Axis Text Size:", value = 10, min = 6, max = 20),
-                       numericInput("title_text_size", "Title Text Size:", value = 14, min = 10, max = 30)
-                     ),
-                     checkboxInput("rotate_x", "Rotate X-axis Labels", FALSE)
-            ),
-            tabPanel("Legend & Size",
-                     radioButtons("legend_option", "Legend Options:",
-                                  choices = c("Keep as is", "Remove", "Custom"),
-                                  selected = "Keep as is"),
-                     conditionalPanel(
-                       condition = "input.legend_option == 'Custom'",
-                       textInput("legend_title", "Legend Title:", value = "Model"),
-                       selectInput("legend_pos", "Legend Position:",
-                                   choices = c("right", "left", "top", "bottom"), selected = "right")
-                     ),
-                     checkboxInput("adjust_size", "Adjust Plot Size", FALSE),
-                     conditionalPanel(
-                       condition = "input.adjust_size == true",
-                       numericInput("plot_width", "Plot Width (px):", value = 800, min = 400),
-                       numericInput("plot_height", "Plot Height (px):", value = 600, min = 300)
-                     )
-            )
-          )
-        ),
-        # Appearance Settings
-        controlbarItem(
-          title = "Appearance",
-          skinSelector()
-        )
+    controlbarMenu(
+      id = "controlbarMenu",
+      # System Status
+      controlbarItem(
+        "status",
+        div(class = "metric-card",
+            h4("System Status"),
+            div(class = "metric-value", textOutput("cpuUsage")),
+            div(class = "metric-label", "CPU Usage")),
+        div(class = "metric-card",
+            h4("Memory"),
+            div(class = "metric-value", textOutput("memoryUsage")),
+            div(class = "metric-label", "Memory Usage")),
+        div(class = "metric-card",
+            h4("Active Models"),
+            div(class = "metric-value", textOutput("activeModels")),
+            div(class = "metric-label", "Running Models"))
       )
     )
-  ),
-  title = "General Forecasting Tool",
-  skin = "black-light"
+  )
 )
 
 shinyUI(ui)

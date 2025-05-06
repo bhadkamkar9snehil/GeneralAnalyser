@@ -1,57 +1,53 @@
 #' Anomaly Detection Functions
 #' 
-#' This module contains functions for detecting anomalies using
-#' various statistical and machine learning methods.
+#' This module contains functions for detecting anomalies in time series data
+#' using various statistical methods.
 
-#' @import anomalize
-#' @import forecast
+#' @import stats
+#' @export
 NULL
 
 #' Detect anomalies in time series data
 #' @param data Time series data
-#' @param method Detection method (iqr, zscore, isolation_forest)
+#' @param method Detection method (zscore, iqr)
 #' @param threshold Threshold for anomaly detection
-#' @return List containing anomaly indicators and scores
-detect_anomalies <- function(data, method = "iqr", threshold = 0.95) {
-    if (is.data.frame(data)) {
-        data <- as.numeric(data[[1]])
-    }
-    
-    result <- switch(method,
-        iqr = {
-            q1 <- quantile(data, 0.25)
-            q3 <- quantile(data, 0.75)
-            iqr <- q3 - q1
-            lower <- q1 - 1.5 * iqr
-            upper <- q3 + 1.5 * iqr
-            list(
-                anomalies = data < lower | data > upper,
-                scores = abs(scale(data)),
-                bounds = c(lower = lower, upper = upper)
-            )
-        },
-        zscore = {
-            scores <- abs(scale(data))
-            list(
-                anomalies = scores > qnorm(threshold),
-                scores = scores
-            )
-        },
-        isolation_forest = {
-            if (!requireNamespace("isotree", quietly = TRUE)) {
-                stop("Package 'isotree' needed for isolation forest method")
-            }
-            model <- isotree::isolation.forest(matrix(data, ncol = 1))
-            scores <- predict(model, matrix(data, ncol = 1))
-            list(
-                anomalies = scores > threshold,
-                scores = scores
-            )
-        },
+#' @return List containing anomalies and related statistics
+#' @export
+detect_anomalies <- function(data, method = "zscore", threshold = 0.95) {
+    if (method == "zscore") {
+        # Z-score method (3-sigma rule)
+        mean_val <- mean(data, na.rm = TRUE)
+        sd_val <- sd(data, na.rm = TRUE)
+        z_scores <- abs((data - mean_val) / sd_val)
+        anomalies <- z_scores > 3
+        
+        list(
+            anomalies = anomalies,
+            mean = mean_val,
+            sd = sd_val,
+            z_scores = z_scores,
+            threshold = 3
+        )
+    } else if (method == "iqr") {
+        # IQR method
+        q1 <- quantile(data, 0.25, na.rm = TRUE)
+        q3 <- quantile(data, 0.75, na.rm = TRUE)
+        iqr <- q3 - q1
+        lower_bound <- q1 - 1.5 * iqr
+        upper_bound <- q3 + 1.5 * iqr
+        anomalies <- data < lower_bound | data > upper_bound
+        
+        list(
+            anomalies = anomalies,
+            q1 = q1,
+            q3 = q3,
+            iqr = iqr,
+            lower_bound = lower_bound,
+            upper_bound = upper_bound
+        )
+    } else {
         stop("Unsupported anomaly detection method")
-    )
-    
-    return(result)
+    }
 }
 
 #' Detect seasonal anomalies
