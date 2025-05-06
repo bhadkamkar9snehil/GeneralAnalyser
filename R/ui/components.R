@@ -319,3 +319,313 @@ create_analysis_box <- function(id, title, status = "primary", ...) {
         )
     )
 }
+
+# UI Components
+
+#' Create monitoring dashboard
+#' @param ns Namespace function for module
+monitoringDashboardUI <- function(ns) {
+    fluidPage(
+        fluidRow(
+            column(3, 
+                valueBoxOutput(ns("modelPerformance"), width = 12),
+                valueBoxOutput(ns("modelHealth"), width = 12)
+            ),
+            column(3,
+                valueBoxOutput(ns("modelAccuracy"), width = 12),
+                valueBoxOutput(ns("modelLatency"), width = 12)
+            ),
+            column(6,
+                box(
+                    width = 12,
+                    title = "Model Performance Over Time",
+                    plotlyOutput(ns("performanceTrend"))
+                )
+            )
+        ),
+        fluidRow(
+            column(6,
+                box(
+                    width = 12,
+                    title = "Active Models",
+                    DTOutput(ns("activeModels"))
+                )
+            ),
+            column(6,
+                box(
+                    width = 12,
+                    title = "Model Alerts",
+                    DTOutput(ns("modelAlerts"))
+                )
+            )
+        ),
+        fluidRow(
+            column(12,
+                tabBox(
+                    width = 12,
+                    tabPanel("Performance Metrics",
+                        plotlyOutput(ns("metricsPlot"))
+                    ),
+                    tabPanel("System Health",
+                        plotlyOutput(ns("healthPlot"))
+                    ),
+                    tabPanel("Resource Usage",
+                        plotlyOutput(ns("resourcePlot"))
+                    )
+                )
+            )
+        )
+    )
+}
+
+#' Create analysis settings panel
+#' @param ns Namespace function for module
+analysisSettingsUI <- function(ns) {
+    fluidRow(
+        column(4,
+            box(
+                width = 12,
+                title = "Data Settings",
+                fileInput(ns("file"), "Upload Data File",
+                         accept = c(".csv", ".xlsx")),
+                selectInput(ns("time_col"), "Time Column", choices = NULL),
+                selectInput(ns("target_col"), "Target Column", choices = NULL),
+                numericInput(ns("split_ratio"), "Train/Test Split Ratio",
+                           value = 0.8, min = 0.5, max = 0.9, step = 0.1)
+            )
+        ),
+        column(4,
+            box(
+                width = 12,
+                title = "Model Settings",
+                selectInput(ns("analysis_type"), "Analysis Type",
+                          choices = c("Time Series", "Regression",
+                                    "Classification", "Clustering",
+                                    "Anomaly Detection")),
+                conditionalPanel(
+                    condition = sprintf("input['%s'] == 'Time Series'", ns("analysis_type")),
+                    checkboxGroupInput(ns("algorithms"), "Algorithms",
+                                     choices = c("ARIMA", "ETS", "Prophet",
+                                               "NNETAR", "VAR")),
+                    numericInput(ns("future_periods"), "Forecast Periods",
+                               value = 12, min = 1)
+                ),
+                conditionalPanel(
+                    condition = sprintf("input['%s'] == 'Regression'", ns("analysis_type")),
+                    selectInput(ns("reg_type"), "Regression Type",
+                              choices = c("Linear", "Ridge", "Lasso",
+                                        "Random Forest", "XGBoost")),
+                    selectInput(ns("reg_target"), "Target Variable",
+                              choices = NULL),
+                    selectizeInput(ns("reg_features"), "Features",
+                                 choices = NULL, multiple = TRUE)
+                ),
+                conditionalPanel(
+                    condition = sprintf("input['%s'] == 'Classification'", ns("analysis_type")),
+                    selectInput(ns("class_method"), "Classification Method",
+                              choices = c("Random Forest", "SVM",
+                                        "Decision Tree", "XGBoost")),
+                    selectInput(ns("class_target"), "Target Variable",
+                              choices = NULL),
+                    selectizeInput(ns("class_features"), "Features",
+                                 choices = NULL, multiple = TRUE)
+                ),
+                conditionalPanel(
+                    condition = sprintf("input['%s'] == 'Clustering'", ns("analysis_type")),
+                    selectInput(ns("cluster_method"), "Clustering Method",
+                              choices = c("K-Means", "Hierarchical", "DBSCAN")),
+                    conditionalPanel(
+                        condition = sprintf("input['%s'] != 'DBSCAN'", ns("cluster_method")),
+                        numericInput(ns("n_clusters"), "Number of Clusters",
+                                   value = 3, min = 2)
+                    ),
+                    selectizeInput(ns("cluster_features"), "Features",
+                                 choices = NULL, multiple = TRUE)
+                ),
+                conditionalPanel(
+                    condition = sprintf("input['%s'] == 'Anomaly Detection'", ns("analysis_type")),
+                    selectInput(ns("anom_method"), "Detection Method",
+                              choices = c("Statistical (3-sigma)", "IQR",
+                                        "Isolation Forest")),
+                    selectInput(ns("anom_target"), "Target Variable",
+                              choices = NULL)
+                )
+            )
+        ),
+        column(4,
+            box(
+                width = 12,
+                title = "Advanced Settings",
+                checkboxInput(ns("feature_engineering"), "Enable Feature Engineering",
+                            value = TRUE),
+                conditionalPanel(
+                    condition = sprintf("input['%s'] == true", ns("feature_engineering")),
+                    checkboxGroupInput(ns("feature_transformations"),
+                                     "Feature Transformations",
+                                     choices = c("Polynomial", "Interaction",
+                                               "Lag", "Rolling Statistics"))
+                ),
+                checkboxInput(ns("handle_missing"), "Handle Missing Values",
+                            value = TRUE),
+                checkboxInput(ns("handle_outliers"), "Handle Outliers",
+                            value = TRUE),
+                selectInput(ns("validation_method"), "Validation Method",
+                          choices = c("Cross-Validation", "Hold-out",
+                                    "Time Series CV")),
+                numericInput(ns("cv_folds"), "Number of CV Folds",
+                           value = 5, min = 2)
+            )
+        )
+    )
+}
+
+#' Create results display panel
+#' @param ns Namespace function for module
+resultsDisplayUI <- function(ns) {
+    fluidRow(
+        column(12,
+            tabBox(
+                width = 12,
+                tabPanel("Model Performance",
+                    fluidRow(
+                        column(6,
+                            plotlyOutput(ns("performancePlot"))
+                        ),
+                        column(6,
+                            DTOutput(ns("metricsTable"))
+                        )
+                    )
+                ),
+                tabPanel("Model Diagnostics",
+                    uiOutput(ns("diagnosticsUI"))
+                ),
+                tabPanel("Feature Importance",
+                    plotlyOutput(ns("featureImportance"))
+                ),
+                tabPanel("Model Explanation",
+                    verbatimTextOutput(ns("modelExplanation"))
+                )
+            )
+        )
+    )
+}
+
+#' Create model management panel
+#' @param ns Namespace function for module
+modelManagementUI <- function(ns) {
+    fluidRow(
+        column(12,
+            tabBox(
+                width = 12,
+                tabPanel("Model Registry",
+                    DTOutput(ns("modelsList"))
+                ),
+                tabPanel("Deployments",
+                    DTOutput(ns("deploymentsList")),
+                    actionButton(ns("deployModel"), "Deploy Selected Model",
+                               class = "btn-primary")
+                ),
+                tabPanel("Model Monitoring",
+                    monitoringDashboardUI(ns)
+                )
+            )
+        )
+    )
+}
+
+#' Create data quality report panel
+#' @param ns Namespace function for module
+dataQualityUI <- function(ns) {
+    fluidRow(
+        column(6,
+            box(
+                width = 12,
+                title = "Missing Values Analysis",
+                plotlyOutput(ns("missingPlot")),
+                DTOutput(ns("missingTable"))
+            )
+        ),
+        column(6,
+            box(
+                width = 12,
+                title = "Outlier Analysis",
+                plotlyOutput(ns("outlierPlot")),
+                DTOutput(ns("outlierTable"))
+            )
+        ),
+        column(12,
+            box(
+                width = 12,
+                title = "Data Distribution",
+                plotlyOutput(ns("distributionPlot"))
+            )
+        )
+    )
+}
+
+#' Create feature engineering panel
+#' @param ns Namespace function for module
+featureEngineeringUI <- function(ns) {
+    fluidRow(
+        column(4,
+            box(
+                width = 12,
+                title = "Feature Transformations",
+                checkboxGroupInput(ns("transformations"), "Select Transformations",
+                                 choices = c("Log", "Square Root", "Box-Cox",
+                                           "Standardization", "Min-Max Scaling")),
+                selectizeInput(ns("transform_cols"), "Columns to Transform",
+                             choices = NULL, multiple = TRUE),
+                actionButton(ns("applyTransform"), "Apply Transformations",
+                           class = "btn-primary")
+            )
+        ),
+        column(4,
+            box(
+                width = 12,
+                title = "Feature Generation",
+                checkboxGroupInput(ns("feature_types"), "Feature Types",
+                                 choices = c("Polynomial", "Interaction",
+                                           "Time-based", "Domain-specific")),
+                numericInput(ns("poly_degree"), "Polynomial Degree",
+                           value = 2, min = 2),
+                actionButton(ns("generateFeatures"), "Generate Features",
+                           class = "btn-primary")
+            )
+        ),
+        column(4,
+            box(
+                width = 12,
+                title = "Feature Selection",
+                selectInput(ns("selection_method"), "Selection Method",
+                          choices = c("Correlation", "Mutual Information",
+                                    "LASSO", "Random Forest")),
+                numericInput(ns("n_features"), "Number of Features",
+                           value = 10, min = 1),
+                actionButton(ns("selectFeatures"), "Select Features",
+                           class = "btn-primary")
+            )
+        )
+    )
+}
+
+#' Create download report panel
+#' @param ns Namespace function for module
+downloadReportUI <- function(ns) {
+    fluidRow(
+        column(12,
+            box(
+                width = 12,
+                title = "Generate Report",
+                checkboxGroupInput(ns("report_sections"), "Report Sections",
+                                 choices = c("Data Quality", "Model Performance",
+                                           "Feature Importance",
+                                           "Model Diagnostics")),
+                selectInput(ns("report_format"), "Report Format",
+                          choices = c("HTML", "PDF", "Word")),
+                downloadButton(ns("downloadReport"), "Generate Report",
+                             class = "btn-primary")
+            )
+        )
+    )
+}

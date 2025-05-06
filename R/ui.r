@@ -43,8 +43,14 @@ ui <- shinydashboardPlus::dashboardPage(
                           icon("database"),
                           h4("No Data Available"),
                           p("Upload your data to begin analysis"),
-                          actionButton("uploadData", "Upload Data", class = "btn-primary")),
-                      DT::dataTableOutput("previewTableMain")
+                          fileInput("file", "Upload Data",
+                                  accept = c(
+                                      "text/csv",
+                                      "text/comma-separated-values",
+                                      ".csv",
+                                      ".xlsx"
+                                  )),
+                          DT::dataTableOutput("previewTableMain")
                   )
                 )
               ),
@@ -196,5 +202,4 @@ ui <- shinydashboardPlus::dashboardPage(
     )
   )
 )
-
-shinyUI(ui)
+)

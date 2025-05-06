@@ -1,135 +1,197 @@
-#' Clustering Analysis Functions
-#' 
-#' This module contains functions for various clustering methods
-#' including k-means, hierarchical, and DBSCAN clustering.
-
-#' @import cluster
-#' @import factoextra
-NULL
+# Clustering Analysis Functions
 
 #' Perform clustering analysis
-#' @param data Data frame of features to cluster
-#' @param method Clustering method (kmeans, hierarchical, dbscan)
-#' @param params List of method-specific parameters
-#' @return List containing clustering results
-perform_clustering <- function(data, method = "kmeans", params = list()) {
-    # Ensure numeric data
-    if (!all(sapply(data, is.numeric))) {
-        stop("All features must be numeric for clustering")
-    }
+#' @param data Data frame containing features
+#' @param feature_cols Feature column names
+#' @param method Clustering method (K-Means, Hierarchical, DBSCAN)
+#' @param n_clusters Number of clusters (for K-Means and Hierarchical)
+#' @return List containing clustering results and metrics
+performClustering <- function(data, feature_cols, method = "K-Means", n_clusters = NULL) {
+    # Data preparation
+    features <- data[, feature_cols, drop = FALSE]
+    features <- scale(features)  # Standardize features
     
-    # Scale data
-    scaled_data <- scale(data)
+    # Handle missing values
+    features <- na.omit(features)
     
-    # Perform clustering based on method
+    # Perform clustering
     result <- switch(method,
-        kmeans = {
-            k <- params$k %||% 3
-            kmeans(scaled_data, centers = k)
-        },
-        hierarchical = {
-            dist_matrix <- dist(scaled_data)
-            hclust(dist_matrix, method = params$linkage %||% "complete")
-        },
-        dbscan = {
-            eps <- params$eps %||% 0.5
-            minPts <- params$minPts %||% 5
-            dbscan::dbscan(scaled_data, eps = eps, minPts = minPts)
-        },
+        "K-Means" = perform_kmeans(features, n_clusters),
+        "Hierarchical" = perform_hierarchical(features, n_clusters),
+        "DBSCAN" = perform_dbscan(features),
         stop("Unsupported clustering method")
     )
     
-    # Add scaled data and original data to results
-    attr(result, "scaled_data") <- scaled_data
-    attr(result, "original_data") <- data
-    
-    return(result)
+    result$method <- method
+    result$feature_cols <- feature_cols
+    result
 }
 
-#' Evaluate clustering quality
-#' @param clustering_result Clustering result object
-#' @return List of clustering quality metrics
-evaluate_clustering <- function(clustering_result) {
-    scaled_data <- attr(clustering_result, "scaled_data")
+# Helper functions for different clustering methods
+perform_kmeans <- function(features, n_clusters) {
+    if(is.null(n_clusters)) n_clusters <- 3
     
-    if (inherits(clustering_result, "kmeans")) {
-        # For k-means
-        metrics <- list(
-            within_ss = clustering_result$tot.withinss,
-            between_ss = clustering_result$betweenss,
-            total_ss = clustering_result$totss,
-            silhouette = cluster::silhouette(clustering_result$cluster, 
-                                           dist(scaled_data))
-        )
-    } else if (inherits(clustering_result, "hclust")) {
-        # For hierarchical clustering
-        metrics <- list(
-            cophenetic = cophenetic(clustering_result),
-            silhouette = cluster::silhouette(cutree(clustering_result, k = 3), 
-                                           dist(scaled_data))
-        )
-    } else if (inherits(clustering_result, "dbscan")) {
-        # For DBSCAN
-        metrics <- list(
-            n_clusters = length(unique(clustering_result$cluster[clustering_result$cluster > 0])),
-            n_noise = sum(clustering_result$cluster == 0)
-        )
+    # Perform k-means clustering
+    model <- kmeans(features, centers = n_clusters)
+    
+    # Calculate silhouette score
+    sil <- cluster::silhouette(model$cluster, dist(features))
+    avg_sil <- mean(sil[, 3])
+    
+    # Calculate cluster centers and sizes
+    centers <- data.frame(model$centers)
+    names(centers) <- colnames(features)
+    sizes <- model$size
+    
+    list(
+        model = model,
+        clusters = model$cluster,
+        centers = centers,
+        sizes = sizes,
+        silhouette_score = avg_sil,
+        within_ss = model$tot.withinss,
+        between_ss = model$betweenss
+    )
+}
+
+perform_hierarchical <- function(features, n_clusters) {
+    if(is.null(n_clusters)) n_clusters <- 3
+    
+    # Calculate distance matrix
+    dist_matrix <- dist(features)
+    
+    # Perform hierarchical clustering
+    hc <- hclust(dist_matrix, method = "ward.D2")
+    
+    # Cut tree to get clusters
+    clusters <- cutree(hc, k = n_clusters)
+    
+    # Calculate silhouette score
+    sil <- cluster::silhouette(clusters, dist_matrix)
+    avg_sil <- mean(sil[, 3])
+    
+    # Calculate cluster centers and sizes
+    centers <- matrix(NA, nrow = n_clusters, ncol = ncol(features))
+    sizes <- numeric(n_clusters)
+    for(i in 1:n_clusters) {
+        cluster_points <- features[clusters == i, ]
+        centers[i,] <- colMeans(cluster_points)
+        sizes[i] <- nrow(cluster_points)
     }
+    centers <- data.frame(centers)
+    names(centers) <- colnames(features)
     
-    return(metrics)
+    list(
+        model = hc,
+        clusters = clusters,
+        centers = centers,
+        sizes = sizes,
+        silhouette_score = avg_sil,
+        dendrogram = hc
+    )
 }
 
-#' Find optimal number of clusters
-#' @param data Data frame of features
-#' @param max_k Maximum number of clusters to consider
-#' @return List containing optimal k and evaluation metrics
-find_optimal_k <- function(data, max_k = 10) {
-    scaled_data <- scale(data)
+perform_dbscan <- function(features, eps = NULL, minPts = NULL) {
+    if(is.null(eps)) {
+        # Automatically determine eps using k-nearest neighbors
+        kNNdist <- dbscan::kNNdist(features, k = 4)
+        eps <- mean(kNNdist) + 2 * sd(kNNdist)
+    }
+    if(is.null(minPts)) minPts <- ncol(features) + 1
     
-    # Calculate metrics for different k values
-    metrics <- lapply(2:max_k, function(k) {
-        km <- kmeans(scaled_data, centers = k)
-        list(
-            k = k,
-            wss = km$tot.withinss,
-            silhouette = mean(cluster::silhouette(km$cluster, dist(scaled_data))[,3])
-        )
-    })
+    # Perform DBSCAN clustering
+    model <- dbscan::dbscan(features, eps = eps, minPts = minPts)
     
-    # Convert to data frame
-    results <- do.call(rbind, lapply(metrics, as.data.frame))
-    
-    # Find optimal k using elbow method
-    wss_diff <- diff(results$wss)
-    elbow_k <- which.min(abs(diff(wss_diff))) + 2
-    
-    return(list(
-        optimal_k = elbow_k,
-        metrics = results
-    ))
-}
-
-#' Extract cluster profiles
-#' @param clustering_result Clustering result object
-#' @param data Original data
-#' @return Data frame of cluster characteristics
-get_cluster_profiles <- function(clustering_result) {
-    data <- attr(clustering_result, "original_data")
-    
-    if (inherits(clustering_result, "kmeans")) {
-        clusters <- clustering_result$cluster
-    } else if (inherits(clustering_result, "hclust")) {
-        clusters <- cutree(clustering_result, k = 3)
+    # Calculate silhouette score if there's more than one cluster
+    if(length(unique(model$cluster)) > 1) {
+        valid_points <- model$cluster > 0
+        sil <- cluster::silhouette(model$cluster[valid_points], 
+                                 dist(features[valid_points,]))
+        avg_sil <- mean(sil[, 3])
     } else {
-        clusters <- clustering_result$cluster
+        avg_sil <- NA
     }
     
-    # Calculate summary statistics for each cluster
-    profiles <- lapply(split(data, clusters), function(cluster_data) {
-        sapply(cluster_data, function(x) {
-            c(mean = mean(x), sd = sd(x))
-        })
-    })
+    list(
+        model = model,
+        clusters = model$cluster,
+        n_clusters = length(unique(model$cluster[model$cluster > 0])),
+        silhouette_score = avg_sil,
+        noise_points = sum(model$cluster == 0),
+        eps = eps,
+        minPts = minPts
+    )
+}
+
+#' Plot clustering results
+#' @param results Results from performClustering
+#' @return plotly object
+plotClustering <- function(results) {
+    if(length(results$feature_cols) < 2) {
+        stop("Need at least 2 features for visualization")
+    }
     
-    return(profiles)
+    # Create scatter plot using first two features
+    plot_data <- data.frame(
+        Feature1 = features[,1],
+        Feature2 = features[,2],
+        Cluster = as.factor(results$clusters)
+    )
+    
+    # Create scatter plot
+    p <- plot_ly(data = plot_data,
+                 x = ~Feature1,
+                 y = ~Feature2,
+                 color = ~Cluster,
+                 type = "scatter",
+                 mode = "markers",
+                 marker = list(size = 10)) %>%
+        layout(title = paste(results$method, "Clustering Results"),
+               xaxis = list(title = results$feature_cols[1]),
+               yaxis = list(title = results$feature_cols[2]))
+    
+    # Add cluster centers for K-Means and Hierarchical
+    if(results$method %in% c("K-Means", "Hierarchical")) {
+        centers <- data.frame(
+            Feature1 = results$centers[,1],
+            Feature2 = results$centers[,2]
+        )
+        p <- p %>% add_markers(data = centers,
+                              x = ~Feature1,
+                              y = ~Feature2,
+                              marker = list(size = 15,
+                                          symbol = "x",
+                                          line = list(width = 2)),
+                              name = "Cluster Centers",
+                              showlegend = TRUE)
+    }
+    
+    p
+}
+
+#' Print clustering summary
+#' @param results Results from performClustering
+#' @return Text output of clustering metrics
+printClusteringSummary <- function(results) {
+    cat("Clustering Method:", results$method, "\n")
+    
+    if(results$method == "DBSCAN") {
+        cat("Number of Clusters:", results$n_clusters, "\n")
+        cat("Number of Noise Points:", results$noise_points, "\n")
+        cat("Eps:", round(results$eps, 4), "\n")
+        cat("MinPts:", results$minPts, "\n")
+    } else {
+        cat("Number of Clusters:", length(results$sizes), "\n")
+        cat("Cluster Sizes:\n")
+        print(results$sizes)
+    }
+    
+    if(!is.na(results$silhouette_score)) {
+        cat("\nSilhouette Score:", round(results$silhouette_score, 4), "\n")
+    }
+    
+    if(results$method == "K-Means") {
+        cat("Within-cluster Sum of Squares:", round(results$within_ss, 2), "\n")
+        cat("Between-cluster Sum of Squares:", round(results$between_ss, 2), "\n")
+    }
 }
