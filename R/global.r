@@ -1,36 +1,43 @@
 # global.R
 # Load required packages and set global options
 
-# Function to check package installation status
-check_and_install_packages <- function(pkgs) {
-  for(pkg in pkgs) {
-    tryCatch({
-      if(!requireNamespace(pkg, quietly = TRUE)) {
-        message(sprintf("Installing package: %s", pkg))
-        install.packages(pkg, repos = "http://cran.us.r-project.org", quiet = TRUE)
-      }
-      library(pkg, character.only = TRUE)
-      packageVersion(pkg) # Check version
-      message(sprintf("Successfully loaded %s version %s", pkg, packageVersion(pkg)))
-    }, error = function(e) {
-      stop(sprintf("Error loading package %s: %s", pkg, e$message))
-    })
-  }
+# Package dependencies
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(
+  shiny,
+  shinydashboard,
+  tidyverse,
+  forecast,
+  DT,
+  plotly,
+  readxl
+)
+
+# Global settings
+options(shiny.maxRequestSize = 30*1024^2)  # Set max file upload size to 30MB
+options(warn = -1)  # Suppress warnings in production
+
+# Theme settings
+theme_generalanalyser <- function() {
+  theme_minimal() +
+    theme(
+      plot.background = element_rect(fill = "white", color = NA),
+      panel.background = element_rect(fill = "white", color = NA),
+      text = element_text(color = "#2c3e50")
+    )
 }
 
-packages <- c("shiny", "shinydashboardPlus", "shinydashboard", "ggplot2", 
-              "dplyr", "readxl", "forecast", "randomForest", "DT", 
-              "reshape2", "vars", "Metrics", "ggthemes", "plotly", "RColorBrewer", 
-              "svars", "glmnet", "e1071", "rpart")
+# Set default theme for all plots
+theme_set(theme_generalanalyser())
 
-# Load all required packages
-check_and_install_packages(packages)
-
-# Source data handling functions
-source("data/data_handlers.R")
-
-# Load analysis modules
-source("analysis/time_series.R")
+# Source helper modules
+source("data/data_handlers.R", local = TRUE)
+source("analysis/time_series.R", local = TRUE)
+source("analysis/regression.R", local = TRUE)
+source("analysis/classification.R", local = TRUE)
+source("analysis/clustering.R", local = TRUE)
+source("analysis/feature_engineering.R", local = TRUE)
+source("utils/helpers.R", local = TRUE)
 
 # Global helper functions
 impute_values <- function(x) {
@@ -40,12 +47,14 @@ impute_values <- function(x) {
   
   for(i in seq_along(x)) {
     if(is.na(x[i])) {
-      x[i] <- if(i == 1) 0 else x[i-1]
+      x[i] <- if(i == 1) median(x, na.rm = TRUE) else x[i-1]
     }
   }
   x
 }
 
-logMsg <- function(msg) {
-  message(sprintf("[%s] - %s", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), msg))
+# Improved logging function
+logMsg <- function(msg, level = "INFO") {
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  message(sprintf("[%s] [%s] - %s", timestamp, level, msg))
 }

@@ -76,3 +76,70 @@ calculate_metrics <- function(actual, predicted, type = "regression") {
         )
     }
 }
+
+# Helper functions for GeneralAnalyser
+# Core utility functions for data handling and error management
+
+#' Check if input is numeric and finite
+#' @param x Input vector to check
+#' @return Logical indicating if all values are valid numeric
+is_valid_numeric <- function(x) {
+  if(!is.numeric(x)) return(FALSE)
+  all(is.finite(x))
+}
+
+#' Basic data validation
+#' @param data Data frame to validate
+#' @param required_cols Vector of required column names
+#' @return List with validation status and any error messages
+validate_data <- function(data, required_cols = NULL) {
+  errors <- character()
+  
+  # Check if data is data frame
+  if(!is.data.frame(data)) {
+    errors <- c(errors, "Input must be a data frame")
+    return(list(valid = FALSE, errors = errors))
+  }
+  
+  # Check for required columns if specified
+  if(!is.null(required_cols)) {
+    missing_cols <- setdiff(required_cols, names(data))
+    if(length(missing_cols) > 0) {
+      errors <- c(errors, 
+                 sprintf("Missing required columns: %s", 
+                        paste(missing_cols, collapse = ", ")))
+    }
+  }
+  
+  list(
+    valid = length(errors) == 0,
+    errors = errors
+  )
+}
+
+#' Format error message for UI display
+#' @param error Error message or object
+#' @return Formatted error string
+format_error <- function(error) {
+  if(is.character(error)) {
+    return(error)
+  }
+  if(inherits(error, "error")) {
+    return(error$message)
+  }
+  "An unknown error occurred"
+}
+
+#' Simple progress logging
+#' @param msg Message to log
+#' @param level Log level (INFO, WARNING, ERROR)
+log_message <- function(msg, level = "INFO") {
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  sprintf("[%s] [%s] %s", timestamp, level, msg)
+}
+
+#' Generate unique identifier
+#' @return Character string with unique ID
+generate_id <- function() {
+  format(Sys.time(), "%Y%m%d_%H%M%S")
+}

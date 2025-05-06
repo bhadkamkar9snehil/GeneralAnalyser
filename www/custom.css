@@ -14,6 +14,17 @@
   --backdrop-filter: blur(10px) saturate(180%);
 }
 
+/* Basic reset and fonts */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 /* Body and main container styling */
 body {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
@@ -86,9 +97,9 @@ body {
 }
 
 .box {
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: box-shadow 0.3s ease;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    margin-bottom: 20px;
 }
 
 .box, .card {
@@ -121,6 +132,10 @@ body {
 .box-header {
     border-radius: 8px 8px 0 0;
     padding: 12px 16px;
+}
+
+.box-header {
+    color: #2c3e50;
 }
 
 .box-body {
@@ -217,6 +232,12 @@ body {
 }
 
 .form-control {
+    border: 1px solid #dce4ec;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+.form-control {
     border-radius: 8px;
     border: 2px solid transparent;
     padding: 8px 12px;
@@ -236,6 +257,11 @@ body {
 .form-control:focus {
     box-shadow: none;
     border-color: var(--primary);
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: none;
 }
 
 /* Select input styling */
@@ -305,10 +331,49 @@ body {
 
 /* Run analysis button specific styling */
 #runAnalysis {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+#runAnalysis:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
+}
+
+#runAnalysis:active {
+    transform: translateY(0);
+}
+
+#runAnalysis .fa {
+    margin-right: 8px;
+}
+
+/* Progress bar styling for analysis */
+.shiny-progress-container {
+    top: 0px;
+}
+
+.shiny-progress .progress {
+    height: 4px;
+    background-color: rgba(44, 62, 80, 0.1);
+}
+
+.shiny-progress .progress-bar {
+    background-color: #2C3E50;
+}
+
+.progress-message {
+    color: #2C3E50;
+    font-weight: 500;
 }
 
 /* DataTable styling */
@@ -322,6 +387,10 @@ body {
 .dataTables_wrapper {
     padding: 16px;
     border-radius: 8px;
+}
+
+.dataTables_wrapper {
+    padding: 10px 0;
 }
 
 table.dataTable {
@@ -348,6 +417,11 @@ table.dataTable thead th {
 table.dataTable thead th {
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
+}
+
+table.dataTable thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dce4ec;
 }
 
 table.dataTable th {
@@ -380,6 +454,10 @@ table.dataTable td {
     background-color: white;
     padding: 16px;
     margin-bottom: 20px;
+}
+
+.plotly {
+    margin: 10px 0;
 }
 
 /* Sliders and numeric inputs */
@@ -427,6 +505,17 @@ label {
   border: 1px solid rgba(209, 213, 219, 0.5);
   color: var(--text-color);
   border-radius: var(--border-radius);
+}
+
+.btn-file {
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
+.btn-file:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
 }
 
 /* Checkbox and radio button styling */
