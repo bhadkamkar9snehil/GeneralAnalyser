@@ -5,116 +5,228 @@ library(DT)
 library(plotly)
 
 ui <- shinydashboardPlus::dashboardPage(
-  header = shinydashboardPlus::dashboardHeader(title = "General Forecasting Tool"),
+  header = shinydashboardPlus::dashboardHeader(
+    title = "General Forecasting Tool"
+  ),
   sidebar = shinydashboardPlus::dashboardSidebar(
     sidebarMenu(
       id = "tabs",
-      menuItem("Data & Analysis", tabName = "data_analysis", icon = icon("table")),
-      menuItem("Regression", tabName = "regression_output", icon = icon("chart-line")),
-      menuItem("Combined Forecast", tabName = "combined_forecast", icon = icon("line-chart")),
-      menuItem("Aggregated Outputs", tabName = "aggregated_outputs", icon = icon("chart-bar")),
-      menuItem("Best Model", tabName = "best_model", icon = icon("trophy"))
+      menuItem("Data & Analysis",
+        tabName = "data_analysis", icon = icon("table")),
+      menuItem("Regression",
+        tabName = "regression_output", icon = icon("chart-line")),
+      menuItem("Combined Forecast",
+        tabName = "combined_forecast", icon = icon("line-chart")),
+      menuItem("Aggregated Outputs",
+        tabName = "aggregated_outputs", icon = icon("chart-bar")),
+      menuItem("Best Model",
+        tabName = "best_model", icon = icon("trophy"))
     )
   ),
   body = dashboardBody(
-    tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
-      tags$link(rel = "stylesheet", href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap")
-    ),
+
     tabItems(
       # Data & Analysis Tab
       tabItem(tabName = "data_analysis",
               fluidRow(
                 shinydashboardPlus::box(
-                  title = "Data Table (First 20 Rows)",
-                  width = 12, collapsible = TRUE, icon = icon("table"),
-                  status = "navy", solidHeader = TRUE,
+                  id = "dataPreviewBox",
+                  width = 12,
+                  title = "Preview Data",
+                  status = "navy",
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
                   DT::dataTableOutput("previewTableMain")
+                  )
+                ),
+              fluidRow(
+                  shinydashboardPlus::box(
+                    width = 12,
+                    title = "Statistics Dashboard",
+                    status = "navy",
+                    solidHeader = TRUE,
+                    collapsible = TRUE,
+                    dropdownMenu = boxDropdown(
+                      boxDropdownItem("Show Distribution", id = "showDist"),
+                      boxDropdownItem("Show Outliers", id = "showOutliers"),
+                      dropdownDivider(),
+                      boxDropdownItem("Export Stats", icon = icon("download"))
+                    ),
+                    plotlyOutput("statsPlot")
+                  )
+
+              ),
+              fluidRow(
+                shinydashboardPlus::box(
+                  width = 12,
+                  title = "Time Series Analysis",
+                  status = "navy",
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  sidebar = boxSidebar(
+                    id = "timeSeriesSidebar",
+                    #background = "green",
+                    selectInput("tsMetric", "Select Metric", 
+                              choices = c("Trend", "Seasonality", "Residuals")),
+                    sliderInput("smoothingWindow", "Smoothing Window",
+                              min = 1, max = 20, value = 5)
+                  ),
+                  plotlyOutput("trendPlot")
                 )
               ),
               fluidRow(
                 shinydashboardPlus::box(
-                  title = "Basic Statistics (Mean & SD)",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  width = 12,
+                  title = "Feature Relationships",
                   status = "navy",
-                  plotlyOutput("statsPlot", height = "300px")
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  dropdownMenu = boxDropdown(
+                    boxDropdownItem("Correlation Matrix", id = "showCorr"),
+                    boxDropdownItem("Scatter Plot Matrix", id = "showScatter"),
+                    boxDropdownItem("Feature Importance", id = "showImportance")
+                  ),
+                  plotlyOutput("corPlot")
                 )
-              ),
-              fluidRow(
-                shinydashboardPlus::box(
-                  title = "Trends for Numeric Columns",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
-                  status = "navy",
-                  plotlyOutput("trendPlot", height = "500px")
-                )
-              ),
-              fluidRow(
-                shinydashboardPlus::box(
-                  title = "Correlation Heatmap",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
-                  status = "navy",
-                  plotlyOutput("corPlot", height = "300px")
-                )
-              )
-      ),
+              )),
       # Regression Tab
       tabItem(tabName = "regression_output",
               fluidRow(
-                shinydashboardPlus::box(
-                  title = "Regression Model Summaries",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
-                  status = "navy",
-                  uiOutput("regressionSummary")
+                column(width = 6,
+                  flipBox(
+                    id = "modelSummaryBox",
+                    width = 12,
+                    front = div(
+                      h3("Model Summary"),
+                      uiOutput("regressionSummary")
+                    ),
+                    back = div(
+                      h3("Model Diagnostics"),
+                      plotlyOutput("diagnosticsPlot")
+                    )
+                  )
+                ),
+                column(width = 6,
+                  shinydashboardPlus::box(
+                    width = 12,
+                    title = "Model Performance",
+                    status = "primary",
+                    solidHeader = TRUE,
+                    dropdownMenu = boxDropdown(
+                      boxDropdownItem("Actual vs Predicted", id = "showActualPred"),
+                      boxDropdownItem("Residual Plot", id = "showResiduals"),
+                      boxDropdownItem("Q-Q Plot", id = "showQQ")
+                    ),
+                    sidebar = boxSidebar(
+                      id = "modelSidebar",
+                      width = 25,
+                      sliderInput("confidence", "Confidence Level", 
+                                min = 0.8, max = 0.99, value = 0.95),
+                      checkboxInput("showInterval", "Show Prediction Interval", TRUE)
+                    ),
+                    uiOutput("regressionPlot")
+                  )
                 )
               ),
               fluidRow(
-                shinydashboardPlus::box(
-                  title = "Regression Charts (Actual vs Predicted)",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
-                  status = "navy",
-                  uiOutput("regressionPlot")
+                shinydashboardPlus::socialBox(
+                  width = 12,
+                  title = userBlock(
+                    image = "https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/tidymodels.png",
+                    title = "Model Metrics",
+                    subtitle = "Performance Analysis"
+                  ),
+                  status = "info",
+
+                  shinydashboardPlus::boxProfile(
+                    title = "Model Overview",
+                    subtitle = "Key Metrics",
+                    type = 2,
+                    src = "https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/tidyverse.png"
+                  ),
+                  div(
+                    class = "text-center",
+                    tabsetPanel(
+                      tabPanel("Metrics", DTOutput("metricsTable")),
+                      tabPanel("Feature Importance", plotlyOutput("featureImportance")),
+                      tabPanel("Model Comparison", plotlyOutput("modelComparison"))
+                    )
+                  )
                 )
-              )
-      ),
+              )),
       # Combined Forecast Tab
       tabItem(tabName = "combined_forecast",
               fluidRow(
                 shinydashboardPlus::box(
-                  title = "Combined Forecast (Plotly)",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
+                  width = 12,
+                  title = "Combined Forecast Analysis",
                   status = "navy",
-                  plotlyOutput("combinedForecastPlot", height = "400px")
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  sidebar = boxSidebar(
+                    id = "forecastSidebar",
+                    startOpen = TRUE,
+                    #background = "light-blue",
+                    width = 25,
+                    selectInput("forecastView", "View Type",
+                              choices = c("Combined", "Individual", "Comparison")),
+                    checkboxInput("showConfidence", "Show Confidence Intervals", TRUE),
+                    sliderInput("horizonSlider", "Forecast Horizon",
+                              min = 1, max = 50, value = 10)
+                  ),
+                  dropdownMenu = boxDropdown(
+                    boxDropdownItem("Download Forecast", id = "downloadForecast"),
+                    boxDropdownItem("Export Plot", id = "exportPlot"),
+                    dropdownDivider(),
+                    boxDropdownItem("Model Details", id = "modelDetails")
+                  ),
+                  plotlyOutput("combinedForecastPlot", height = "500px")
                 )
-              )
-      ),
+              )),
+      
       # Aggregated Outputs Tab
       tabItem(tabName = "aggregated_outputs",
               fluidRow(
-                shinydashboardPlus::box(
-                  title = "Overall Forecasts (Test Set)",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
-                  status = "navy",
-                  plotlyOutput("forecastPlot", height = "300px")
-                )
-              ),
-              fluidRow(
-                shinydashboardPlus::box(
-                  title = "Overall Residuals (Test Set)",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
-                  status = "navy",
-                  plotlyOutput("residualPlot", height = "300px"),
-                  DT::dataTableOutput("errorMetrics")
-                )
-              ),
-              fluidRow(
-                shinydashboardPlus::box(
-                  title = "Algorithm Comparison (RMSE)",
-                  width = 12, collapsible = TRUE, solidHeader = TRUE,
-                  status = "navy",
-                  plotlyOutput("comparisonPlot", height = "300px")
-                )
+
+                  flipBox(
+                    id = "forecastBox",
+                    width = 12,
+                    front = div(
+                      h3("Forecast Results"),
+                      plotlyOutput("forecastPlot")
+                    ),
+                    back = div(
+                      h3("Forecast Metrics"),
+                      DTOutput("forecastMetrics")
+                    )
+                  )
               )
-      ),
+              ,
+              fluidRow(
+                  flipBox(
+                    id = "residualsBox",
+                    width = 12,
+                    front = div(
+                      h3("Residual Analysis"),
+                      plotlyOutput("residualPlot")
+                    ),
+                    back = div(
+                      h3("Error Distribution"),
+                      plotlyOutput("errorDist")
+                    )
+                  )
+                ),
+
+              fluidRow(
+                shinydashboardPlus::box(
+                  width = 12,
+                  title = "Algorithm Comparison",
+                  subtitle = "Performance Metrics",
+                  status = "primary",
+                  plotlyOutput("comparisonPlot")
+
+                )
+              )),
       # Best Model Tab
       tabItem(tabName = "best_model",
               fluidRow(

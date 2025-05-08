@@ -228,18 +228,46 @@ server <- function(input, output, session) {
       incProgress(0.3, detail = "Running forecasting models...")
       if("ARIMA" %in% input$algorithms) {
         logMsg("Running ARIMA model.")
-        arima_model <- auto.arima(train_target)
-        fc_test <- forecast(arima_model, h = length(test_target))
-        preds_test <- as.numeric(fc_test$mean)
-        rmse_val <- rmse(test_target, preds_test)
-        mape_val <- mape(test_target, preds_test) * 100
-        fc_future <- forecast(arima_model, h = length(test_target) + input$future_periods)
-        future_preds <- tail(as.numeric(fc_future$mean), input$future_periods)
-        model_preds[["ARIMA_test"]] <- preds_test
-        model_preds[["ARIMA_future"]] <- future_preds
-        model_preds[["ARIMA_fc"]] <- fc_test
-        error_metrics <- rbind(error_metrics, data.frame(Model = "ARIMA", RMSE = rmse_val, MAPE = mape_val))
-        logMsg("ARIMA model complete.")
+        tryCatch({
+          # Check for constant/zero variance
+          if(var(train_target, na.rm = TRUE) == 0) {
+            stop("Training data has zero variance - cannot fit ARIMA model")
+          }
+          
+          # Fit ARIMA model with error handling
+          arima_model <- auto.arima(train_target, stepwise = TRUE, approximation = FALSE)
+          
+          # Generate test set predictions
+          fc_test <- forecast(arima_model, h = length(test_target))
+          preds_test <- as.numeric(fc_test$mean)
+          rmse_val <- rmse(test_target, preds_test)
+          mape_val <- mape(test_target, preds_test) * 100
+          
+          # Generate future predictions
+          fc_future <- forecast(arima_model, h = length(test_target) + input$future_periods)
+          future_preds <- tail(as.numeric(fc_future$mean), input$future_periods)
+          
+          # Store results
+          model_preds[["ARIMA_test"]] <- preds_test
+          model_preds[["ARIMA_future"]] <- future_preds
+          model_preds[["ARIMA_fc"]] <- fc_test
+          error_metrics <- rbind(error_metrics, 
+                               data.frame(Model = "ARIMA", 
+                                        RMSE = rmse_val, 
+                                        MAPE = mape_val))
+          
+          logMsg("ARIMA model successfully completed")
+        }, error = function(e) {
+          logMsg(paste("Error in ARIMA model:", e$message))
+          error_metrics <<- rbind(error_metrics,
+                                data.frame(Model = "ARIMA",
+                                         RMSE = NA,
+                                         MAPE = NA))
+          model_preds[["ARIMA_test"]] <<- rep(NA, length(test_target))
+          model_preds[["ARIMA_future"]] <<- rep(NA, input$future_periods)
+        }, warning = function(w) {
+          logMsg(paste("Warning in ARIMA model:", w$message))
+        })
       }
       if("ETS" %in% input$algorithms) {
         logMsg("Running ETS model.")
